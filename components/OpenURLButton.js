@@ -15,9 +15,14 @@ export default function OpenURLButton({url, children}) {
       } else {
         Alert.alert(`Don't know how to open this URL: ${url}`);
       }
-    }, [url]);
-  
-    return <Pressable style={styles.button} onPress={handlePress}><Text style={""}>{children}</Text></Pressable>
+    }, [url])
+    const [primaryText, secondaryText] = React.Children.toArray(children);
+    return (
+      <Pressable style={styles.button} onPress={handlePress}>
+      <Text style={styles.primary}>{primaryText}</Text>
+      {secondaryText && <Text style={styles.secondary}>{secondaryText}</Text>}
+      </Pressable>
+    )
   };
 
 const styles = StyleSheet.create({
@@ -27,6 +32,14 @@ const styles = StyleSheet.create({
         padding: 40,
         marginVertical: 15,
         marginHorizontal: 0
+    },
+    primary: {
+        fontSize: 20,
+        fontWeight: 'bold',
+    },
+    secondary: {
+        fontStyle: 'italic',
+        fontWeight: '300',
     },
 
 })
