@@ -1,64 +1,40 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FlatList, View, StyleSheet, StatusBar } from "react-native";
 import OpenURLButton from "../components/OpenURLButton";
+import axios from 'axios';
+
 export default function NewsScreen(){
-    const DATA = [
-        {
-          id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-          text: '1st text',
-          title: 'First Item',
-        },
-        {
-          id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-          text: '2st text',
-          title: 'Second Item',
-        },
-        {
-          id: '58694a0f-3da1-471f-bd96-145571e29d72',
-          text: '3st text',
-          title: 'Third Item',
-        },
-        {
-            id: '1df3c762-8baf-4321-8349-5f6e4526d931',
-            text: '4th text',
-            title: 'Fourth Item',
-            },
-            {
-            id: 'e41f6bb2-526d-4cf6-89dc-2f4d3b80a8c0',
-            text: '5th text',
-            title: 'Fifth Item',
-            },
-            {
-            id: 'a7d5bb3c-213c-4329-9eaf-cd96b8766522',
-            text: '6th text',
-            title: 'Sixth Item',
-            },
-            {
-            id: 'f68d2e5b-1f83-4b64-9456-5f1b25f2a0b1',
-            text: '7th text',
-            title: 'Seventh Item',
-            },
-            {
-            id: '95be1426-614b-4fb8-bbd6-b263a6722f55',
-            text: '8th text',
-            title: 'Eighth Item',
-            },
-      ];
-      const supportedURL = 'https://google.com';
+    const [isLoading, setLoading] = useState(true);
+    const [data, setData] = useState([]);
+    const api_key = '' //API KEY HERE!!!
+        const getNews = () => {
+            try {
+              axios.get(` https://newsdata.io/api/1/news?apikey=${api_key}&q=electricity&country=fi `).then(function (res){
+                setData(res.data.results)
+              })
+            } catch (error) {
+              console.error(error);
+            } finally {
+              setLoading(false);
+            }
+          };
+        useEffect(() => {
+            getNews();
+          }, []);
     return (
         <SafeAreaView style={styles.container}>
             <FlatList
-                data={DATA}
+                data={data}
                 renderItem={ ({item}) => 
                 <OpenURLButton
                     styling={styles.urlbutton}
-                    url={supportedURL}
+                    url={item.link}
                 >{item.title}
-                {item.text}
+                {item.source_id}
 
                 </OpenURLButton>}
-                keyExtractor={item => item.id}
+                keyExtractor={item => item.article_id}
             />
         </SafeAreaView>
     )
