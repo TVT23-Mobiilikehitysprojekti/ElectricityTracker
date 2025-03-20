@@ -1,3 +1,4 @@
+
 import React, {useEffect, useState} from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FlatList, View, StyleSheet, StatusBar } from "react-native";
@@ -55,3 +56,4 @@ const styles = StyleSheet.create({
         fontSize: 200,
     }
 });
+
