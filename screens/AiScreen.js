@@ -6,9 +6,10 @@ import { HUGGINGFACE_API_KEY } from "@env";
 console.log(HUGGINGFACE_API_KEY);
 
 // Huggimgface api/token https://huggingface.co/docs/hub/en/security-tokens
-const inference = new HfInference(HUGGINGFACE_API_KEY);
 
 export default function AiScreen() {
+  const inference = new HfInference(HUGGINGFACE_API_KEY);
+
   const [inputText, setInputText] = useState("");
   const [summary, setSummary] = useState("");
   const [loading, setLoading] = useState(false);
