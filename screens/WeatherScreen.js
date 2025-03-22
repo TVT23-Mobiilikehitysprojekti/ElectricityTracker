@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TextInput, Button, TouchableOpacity, Keyboard, 
 import * as Location from 'expo-location';
 import axios from 'axios';
 import { GEOAPIFY_KEY, OPENWEATHER_KEY } from '@env';
+import MapModal from '../components/mapModal';
 
 export default function WeatherScreen() {
   const [location, setLocation] = useState(null);
@@ -12,6 +13,9 @@ export default function WeatherScreen() {
   const [manualCity, setManualCity] = useState('');
   const [showInput, setShowInput] = useState(false);
   const [citiesWeather, setCitiesWeather] = useState([]);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [selectedCity, setSelectedCity] = useState(null);
+
 
   const cities = [
     'Helsinki', 'Turku', 'Tampere', 'Vaasa', 'Seinäjoki', 'Jyväskylä', 'Lappeenranta',
@@ -109,22 +113,24 @@ export default function WeatherScreen() {
   const fetchWeatherForCities = async () => {
     const WEATHER_API_KEY = OPENWEATHER_KEY;
     try {
-      const weatherData = await Promise.all(
-        cities.map(async (city) => {
-          const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${WEATHER_API_KEY}`;
-          const response = await axios.get(url);
-          return {
-            city,
-            temperature: (response.data.main.temp - 273.15).toFixed(2),
-            windSpeed: response.data.wind.speed,
-            weather: response.data.weather[0].description,
-          };
-        })
-      );
-      setCitiesWeather(weatherData);
+        const weatherData = await Promise.all(
+            cities.map(async (city) => {
+                const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${WEATHER_API_KEY}`;
+                const response = await axios.get(url);
+                return {
+                    city,
+                    temperature: (response.data.main.temp - 273.15).toFixed(2),
+                    tempMax: (response.data.main.temp_max - 273.15).toFixed(2),
+                    tempMin: (response.data.main.temp_min - 273.15).toFixed(2),
+                    windSpeed: response.data.wind.speed,
+                    weather: response.data.weather[0].description,
+                };
+            })
+        );
+        setCitiesWeather(weatherData);
     } catch (error) {
-      console.error('Error fetching weather for cities:', error);
-      setErrorMsg('Error fetching weather data for cities');
+        console.error('Error fetching weather for cities:', error);
+        setErrorMsg('Error fetching weather data for cities');
     }
   };
 
@@ -185,63 +191,78 @@ export default function WeatherScreen() {
     }
   };
 
-  return (
-    <View style={styles.container}>
-      {errorMsg ? (
-        <Text style={styles.error}>{errorMsg}</Text>
-      ) : (
-        <>
-          {weatherData && (
-            <View style={styles.userCityWeatherContainer}>
-              <Text style={styles.userCityText}>{`Sijaintisi: ${getCityName(weatherData.city)}`}</Text>
-              <Text style={styles.userCityText}>{`${weatherData.temperature}°C`},  {`${weatherData.windSpeed} m/s`}</Text>
-              <Text style={styles.userCityText}>{`${getWeatherTranslation(weatherData.weather)}`}</Text>
-            </View>
-          )}
-
-          <Button title="Käytä laitteen sijaintia" onPress={fetchCurrentLocationWeather} />
-
-          <TouchableOpacity style={styles.setLocationButton} onPress={() => setShowInput(!showInput)}>
-            <Text style={styles.setLocationButtonText}>Aseta sijainti</Text>
-          </TouchableOpacity>
-
-          {showInput && (
-            <TextInput
-              style={styles.input}
-              placeholder="Kaupungin nimi"
-              value={manualCity}
-              onChangeText={(text) => setManualCity(text)}
-              onSubmitEditing={handleManualCity}
+    const handleCityClick = (cityData) => {
+      setSelectedCity(cityData.city);
+      setModalVisible(true);
+    };
+  
+    return (
+      <View style={styles.container}>
+        {errorMsg ? (
+          <Text style={styles.error}>{errorMsg}</Text>
+        ) : (
+          <>
+            {weatherData && (
+              <View style={styles.userCityWeatherContainer}>
+                <Text style={styles.userCityText}>{`Sijaintisi: ${getCityName(weatherData.city)}`}</Text>
+                <Text style={styles.userCityText}>{`${weatherData.temperature}°C`},  {`${weatherData.windSpeed} m/s`}</Text>
+                <Text style={styles.userCityText}>{`${getWeatherTranslation(weatherData.weather)}`}</Text>
+              </View>
+            )}
+  
+            <Button title="Käytä laitteen sijaintia" onPress={fetchCurrentLocationWeather} />
+  
+            <TouchableOpacity style={styles.setLocationButton} onPress={() => setShowInput(!showInput)}>
+              <Text style={styles.setLocationButtonText}>Aseta sijainti</Text>
+            </TouchableOpacity>
+  
+            {showInput && (
+              <TextInput
+                style={styles.input}
+                placeholder="Kaupungin nimi"
+                value={manualCity}
+                onChangeText={(text) => setManualCity(text)}
+                onSubmitEditing={handleManualCity}
+              />
+            )}
+  
+            <Text style={styles.infoText}>
+              Sääolosuhteet voivat vaikuttaa pörssisähkön hintaan lämmityskustannusten ja uusiutuvan energian saatavuuden kautta.
+            </Text>
+  
+            {citiesWeather.length > 0 && (
+              <ScrollView style={styles.scrollContainer}>
+                {citiesWeather.map((cityData) => (
+                  <TouchableOpacity 
+                    key={cityData.city} 
+                    style={styles.weatherBox} 
+                    onPress={() => handleCityClick(cityData)} // Trigger modal on city click
+                  >
+                    <View style={styles.textContainer}>
+                      <Text style={styles.boxText}>{`${getCityName(cityData.city)}`}</Text>
+                      <Text style={styles.boxText}>{`${cityData.temperature}°C`}, {`${cityData.windSpeed} m/s`}</Text>
+                      <Text style={styles.boxText}>{`${getWeatherTranslation(cityData.weather)}`}</Text>
+                    </View>
+                    <View style={styles.imageContainer}>
+                      <Image
+                        source={getCityImage(cityData.city)}
+                        style={styles.image}
+                      />
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            )}
+  
+            <MapModal
+              isVisible={isModalVisible}
+              onClose={() => setModalVisible(false)}
+              cityName={selectedCity}
             />
-          )}
-
-          <Text style={styles.infoText}>
-            Sääolosuhteet voivat vaikuttaa pörssisähkön hintaan lämmityskustannusten ja uusiutuvan energian saatavuuden kautta.
-          </Text>
-
-          {citiesWeather.length > 0 && (
-            <ScrollView style={styles.scrollContainer}>
-              {citiesWeather.map((cityData) => (
-                <View key={cityData.city} style={styles.weatherBox}>
-                  <View style={styles.textContainer}>
-                    <Text style={styles.boxText}>{`${getCityName(cityData.city)}`}</Text>
-                    <Text style={styles.boxText}>{`${cityData.temperature}°C`}, {`${cityData.windSpeed} m/s`}</Text>
-                    <Text style={styles.boxText}>{`${getWeatherTranslation(cityData.weather)}`}</Text>
-                  </View>
-                  <View style={styles.imageContainer}>
-                    <Image
-                      source={getCityImage(cityData.city)}
-                      style={styles.image}
-                    />
-                  </View>
-                </View>
-              ))}
-            </ScrollView>
-          )}
-        </>
-      )}
-    </View>
-  );
+          </>
+        )}
+      </View>
+    );
 }
 
 const styles = StyleSheet.create({
