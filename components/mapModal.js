@@ -47,17 +47,21 @@ const MapModal = ({ isVisible, onClose, cityName }) => {
           initialRegion={{
             latitude: city.latitude,
             longitude: city.longitude,
-            latitudeDelta: 0.05,
-            longitudeDelta: 0.05,
+            latitudeDelta: 5,
+            longitudeDelta: 5,
           }}
         >
-          <Marker
-            coordinate={{
-              latitude: city.latitude,
-              longitude: city.longitude,
-            }}
-            title={city.name}
-          />
+          {locations.map(location => (
+            <Marker
+              key={location.name}
+              coordinate={{
+                latitude: location.latitude,
+                longitude: location.longitude,
+              }}
+              title={location.name}
+              pinColor={location.name === city.name ? 'red' : 'blue'}
+            />
+          ))}
         </MapView>
         <TouchableOpacity style={styles.closeButton} onPress={onClose}>
           <Text style={styles.closeButtonText}>Takaisin</Text>
