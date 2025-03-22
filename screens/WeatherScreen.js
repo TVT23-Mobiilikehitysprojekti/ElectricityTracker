@@ -216,7 +216,7 @@ export default function WeatherScreen() {
           )}
 
           <Text style={styles.infoText}>
-            Sääolosuhteet Suomessa ja ulkomailla voivat vaikuttaa pörssisähkön hintaan lämmityskustannusten ja uusiutuvan energian saatavuuden kautta.
+            Sääolosuhteet voivat vaikuttaa pörssisähkön hintaan lämmityskustannusten ja uusiutuvan energian saatavuuden kautta.
           </Text>
 
           {citiesWeather.length > 0 && (
