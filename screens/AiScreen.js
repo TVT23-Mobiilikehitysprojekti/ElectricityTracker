@@ -29,7 +29,7 @@ export default function AiScreen() {
       console.log("Sending request to Hugging Face API...");
       const response = await inference.textGeneration({
         model: "Finnish-NLP/Ahma-3B-Instruct",
-        inputs: `Tiivistä seuraava teksti: ${inputText}`,
+        inputs: `${inputText}`,
         parameters: {
           max_new_tokens: 100,
           temperature: 0.5,

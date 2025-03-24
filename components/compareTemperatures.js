@@ -70,31 +70,30 @@ function isMeasurementInRange(city, month, dailyMax, dailyMin) {
   const cityData = citiesMean.find(cityEntry => cityEntry.name === city);
   if (!cityData) {
     console.error(`City ${city} not found.`);
-    return;
+    return `City ${city} not found.`;
   }
 
   const monthData = cityData.monthlyData.find(m => m.month === month);
   if (!monthData) {
     console.error(`Month ${month} not found for city ${city}.`);
-    return;
+    return `Month ${month} not found for city ${city}.`;
   }
 
   const dailyMean = (dailyMax + dailyMin) / 2;
   const { meanMax, meanMin } = monthData;
 
-  const cityStatus = citiesStatus.find(cityEntry => cityEntry.name === city);
-  if (!cityStatus) {
-    console.error(`City ${city} status not found.`);
-    return;
+  let status = 'Normal';
+  if (dailyMean > meanMax) {
+    status = 'Exceeds Max';
+  } else if (dailyMean < meanMin) {
+    status = 'Below Min';
   }
 
-  if (dailyMean > meanMax) {
-    cityStatus.status = 'Exceeds Max';
-  } else if (dailyMean < meanMin) {
-    cityStatus.status = 'Below Min';
-  } else {
-    cityStatus.status = 'Normal';
-  }
+  console.log(`${city} (${month}): ${status}`);
+  return status;
 }
+
+export default isMeasurementInRange;
+
 
 // isMeasurementInRange('Helsinki', 'January', -1, -6);

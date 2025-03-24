@@ -4,6 +4,7 @@ import * as Location from 'expo-location';
 import axios from 'axios';
 import { GEOAPIFY_KEY, OPENWEATHER_KEY } from '@env';
 import MapModal from '../components/mapModal';
+import { isMeasurementInRange } from '../components/fetchElectricityPrice';
 
 export default function WeatherScreen() {
   const [location, setLocation] = useState(null);
@@ -16,6 +17,7 @@ export default function WeatherScreen() {
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedCity, setSelectedCity] = useState(null);
 
+  console.log(isMeasurementInRange('Helsinki', 'January', -1, -6))
 
   const cities = [
     'Helsinki', 'Turku', 'Tampere', 'Vaasa', 'Seinäjoki', 'Jyväskylä', 'Lappeenranta',
@@ -236,7 +238,7 @@ export default function WeatherScreen() {
                   <TouchableOpacity 
                     key={cityData.city} 
                     style={styles.weatherBox} 
-                    onPress={() => handleCityClick(cityData)} // Trigger modal on city click
+                    onPress={() => handleCityClick(cityData)}
                   >
                     <View style={styles.textContainer}>
                       <Text style={styles.boxText}>{`${getCityName(cityData.city)}`}</Text>
