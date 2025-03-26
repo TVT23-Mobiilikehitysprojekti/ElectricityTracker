@@ -4,7 +4,6 @@ import * as Location from 'expo-location';
 import axios from 'axios';
 import { GEOAPIFY_KEY, OPENWEATHER_KEY } from '@env';
 import MapModal from '../components/mapModal';
-import { isMeasurementInRange } from '../components/fetchElectricityPrice';
 
 export default function WeatherScreen() {
   const [location, setLocation] = useState(null);
@@ -16,8 +15,6 @@ export default function WeatherScreen() {
   const [citiesWeather, setCitiesWeather] = useState([]);
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedCity, setSelectedCity] = useState(null);
-
-  console.log(isMeasurementInRange('Helsinki', 'January', -1, -6))
 
   const cities = [
     'Helsinki', 'Turku', 'Tampere', 'Vaasa', 'Seinäjoki', 'Jyväskylä', 'Lappeenranta',

@@ -9,15 +9,19 @@ import NewsScreen from './screens/NewsScreen';
 import AiScreen from './screens/AiScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import Menu from './components/Menu';
+import { useElectricityPriceWatcher } from './hooks/useElectricityPriceWatcher';
 import { registerForPushNotificationsAsync } from './components/notifications';
+import { registerBackgroundTask } from './components/taskManager'
 
 const Stack = createStackNavigator();
 
 export default function App() {
   const [isMenuVisible, setMenuVisible] = useState(false);
+  const userLimits = useElectricityPriceWatcher();
 
   useEffect(() => {
     registerForPushNotificationsAsync();
+    registerBackgroundTask();
 }, []);
 
   return (
