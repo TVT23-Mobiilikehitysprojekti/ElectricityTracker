@@ -14,7 +14,8 @@ const reducer = (state, action) => {
             const newPowerConsumer = {
                 id: uuid.v4(),
                 name: action.name,
-                kWhY: action.kWhY
+                kWhY: action.kWhY,
+                calcs: []
             }
             return [...state,newPowerConsumer]
         case "UPDATE":
@@ -22,10 +23,22 @@ const reducer = (state, action) => {
             const updatedPowerConsumer = {
                 id: action.id,
                 name: action.name,
-                kWhY: action.kWhY
+                kWhY: action.kWhY,
+                calcs: []
             }
             state[index] = updatedPowerConsumer
             return [state]
+        case "CALCULATE":
+            state.forEach(element => {
+                element.calcs = [
+                    (kWhY/365)*action.price,
+                    (kWhY/52)*action.price,
+                    (kWhY/12)*action.price,
+                    kWhY*action.price
+
+                ]
+            })
+            return[state]
         default:
             return state
     }
@@ -35,24 +48,41 @@ export default function ElectricityCalculatorScreen() {
     const [PowerConsumers, dispatch] = useReducer(reducer,memory)
     const [data, setData] = useState([])
     const [memory, setMemory] = useState([])
+    const [prices, setPrices] = useState([])
     const [name, setName] = useState('')
     const [kWhY, setKWhy] = useState('')
     const [visible, setVisible] = useState(false)
 
     const toggleOverlay = () => {
         setVisible(!visible);
-    };
+    }
     
     const handleRemove = (id) => {
         dispatch({type: "REMOVE", id})
     }
-    const handleAdd = (data) => {
+    const handleAdd = () => {
+        setData([name,kWhY])
         dispatch({type: "ADD", data})
         setData([])
     }
     const handleUpdate = (id, data) => {
         dispatch({type: "UPDATE", id, data})
         setData([])
+    }
+    const handleCalculate = (price) => {
+        dispatch({type: "CALCULATE", price})
+        calculateTotals()
+    }
+
+    const calculateTotals = () => {
+        let totals = [0,0,0,0]
+        PowerConsumers.forEach(element => {
+            totals[0] += element.calcs[0],
+            totals[1] += element.calcs[1],
+            totals[2] += element.calcs[2],
+            totals[3] += element.calcs[3]
+        });
+        setPrices(totals)
     }
 
     const getData = async () => {
@@ -86,7 +116,13 @@ export default function ElectricityCalculatorScreen() {
     return (
         <View>
             <View>
-                
+                <Text>Price of electricity</Text>
+                <TextInput onChangeText={newPrice => handleCalculate(newPrice)}
+                    placeholder="0"></TextInput>
+                <Text>Daily: {prices[0]}</Text>
+                <Text>Weekly: {prices[1]}</Text>
+                <Text>Monthly: {prices[2]}</Text>
+                <Text>Yearly: {prices[3]}</Text>
             </View>
             <Button onPress={toggleOverlay}>New item</Button>
             <Overlay 
@@ -102,7 +138,9 @@ export default function ElectricityCalculatorScreen() {
                 <Button onPress={() => handleAdd([name,kWhY])}>Add</Button>
             </Overlay>
             <FlatList
-            
+            data={PowerConsumers}
+            renderItem={({item}) => PowerConsumerComp(item, handleUpdate)}
+            keyExtractor={item => item.id}
             />
         </View>
     )
