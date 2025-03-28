@@ -1,7 +1,7 @@
-import React, { useReducer, useState } from "react";
+import React, { useReducer, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import uuid from 'react-native-uuid';
-import { Button, FlatList, TextInput, View } from "react-native";
+import { Button, FlatList, TextInput, View, Text } from "react-native";
 import { Overlay } from '@rneui/themed';
 
 const STORAGE_KEY = '@items_key';
@@ -124,7 +124,7 @@ export default function ElectricityCalculatorScreen() {
                 <Text>Monthly: {prices[2]}</Text>
                 <Text>Yearly: {prices[3]}</Text>
             </View>
-            <Button onPress={toggleOverlay}>New item</Button>
+            <Button title="New item" onPress={toggleOverlay}></Button>
             <Overlay 
             isVisible={visible} 
             onBackdropPress={toggleOverlay}>
@@ -135,7 +135,7 @@ export default function ElectricityCalculatorScreen() {
                 <TextInput 
                 placeholder="Enter kWh yearly"
                 onChangeText={newKWhy => setKWhy(newKWhy)}></TextInput>
-                <Button onPress={() => handleAdd([name,kWhY])}>Add</Button>
+                <Button title="Add" onPress={() => handleAdd([name,kWhY])}></Button>
             </Overlay>
             <FlatList
             data={PowerConsumers}

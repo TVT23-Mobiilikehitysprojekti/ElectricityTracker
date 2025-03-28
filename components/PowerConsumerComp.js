@@ -11,7 +11,7 @@ export default function PowerConsumerComp(item, update ){
             <Text>{item.calcs[1]}</Text>
             <Text>{item.calcs[2]}</Text>
             <Text>{item.calcs[3]}</Text>
-            <Button onPress={update(item)}>Edit</Button>
+            <Button  title="Edit" onPress={update(item)}></Button>
         </View>
     )
 }

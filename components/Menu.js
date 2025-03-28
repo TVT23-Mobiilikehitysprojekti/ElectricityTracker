@@ -9,6 +9,7 @@ export default function Menu({ isVisible, setVisible }) {
     { name: 'WeatherScreen', label: 'Weather' },
     { name: 'NewsScreen', label: 'News' },
     { name: 'AiScreen', label: 'AI' },
+    { name: 'ElectricityCalculatorScreen', label: 'Calculator' },
     { name: 'SettingsScreen', label: 'Settings' },
   ];
 
