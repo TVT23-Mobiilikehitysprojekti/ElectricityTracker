@@ -3,100 +3,88 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import uuid from 'react-native-uuid';
 import { Button, FlatList, TextInput, View, Text } from "react-native";
 import { Overlay } from '@rneui/themed';
+import PowerConsumerComp from "../components/PowerConsumerComp";
 
 const STORAGE_KEY = '@items_key';
 
 const reducer = (state, action) => {
-    switch(action.type) {
+    switch (action.type) {
         case "REMOVE":
-            return state.filter((PowerConsumer) => PowerConsumer.id !== action.id)
+            return state.filter((PowerConsumer) => PowerConsumer.id !== action.id);
         case "ADD":
             const newPowerConsumer = {
                 id: uuid.v4(),
                 name: action.name,
-                kWhY: action.kWhY,
+                kWhY: parseFloat(action.kWhY),
                 calcs: []
-            }
-            return [...state,newPowerConsumer]
+            };
+            return [...state, newPowerConsumer];
         case "UPDATE":
-            let index = state.indexOf(action.id)
-            const updatedPowerConsumer = {
-                id: action.id,
-                name: action.name,
-                kWhY: action.kWhY,
-                calcs: []
-            }
-            state[index] = updatedPowerConsumer
-            return [state]
+            return state.map((item) =>
+                item.id === action.id ? { ...item, name: action.name, kWhY: parseFloat(action.kWhY) } : item
+            );
         case "CALCULATE":
-            state.forEach(element => {
-                element.calcs = [
-                    (kWhY/365)*action.price,
-                    (kWhY/52)*action.price,
-                    (kWhY/12)*action.price,
-                    kWhY*action.price
-
+            return state.map((element) => ({
+                ...element,
+                calcs: [
+                    (element.kWhY / 365) * action.price,
+                    (element.kWhY / 52) * action.price,
+                    (element.kWhY / 12) * action.price,
+                    element.kWhY * action.price
                 ]
-            })
-            return[state]
+            }));
         default:
-            return state
+            return state;
     }
-}
+};
 
 export default function ElectricityCalculatorScreen() {
-    const [PowerConsumers, dispatch] = useReducer(reducer,memory)
-    const [data, setData] = useState([])
-    const [memory, setMemory] = useState([])
-    const [prices, setPrices] = useState([])
-    const [name, setName] = useState('')
-    const [kWhY, setKWhy] = useState('')
-    const [visible, setVisible] = useState(false)
+    const [PowerConsumers, dispatch] = useReducer(reducer, []);
+    const [prices, setPrices] = useState([0, 0, 0, 0]);
+    const [name, setName] = useState('');
+    const [kWhY, setKWhY] = useState('');
+    const [visible, setVisible] = useState(false);
 
     const toggleOverlay = () => {
         setVisible(!visible);
-    }
-    
+    };
+
     const handleRemove = (id) => {
-        dispatch({type: "REMOVE", id})
-    }
+        dispatch({ type: "REMOVE", id });
+    };
+
     const handleAdd = () => {
-        setData([name,kWhY])
-        dispatch({type: "ADD", data})
-        setData([])
-    }
-    const handleUpdate = (id, data) => {
-        dispatch({type: "UPDATE", id, data})
-        setData([])
-    }
+        dispatch({ type: "ADD", name, kWhY });
+        toggleOverlay();
+        setName('');
+        setKWhY('');
+    };
+
     const handleCalculate = (price) => {
-        dispatch({type: "CALCULATE", price})
-        calculateTotals()
-    }
+        dispatch({ type: "CALCULATE", price: parseFloat(price) })
+    };
 
     const calculateTotals = () => {
-        let totals = [0,0,0,0]
-        PowerConsumers.forEach(element => {
-            totals[0] += element.calcs[0],
-            totals[1] += element.calcs[1],
-            totals[2] += element.calcs[2],
-            totals[3] += element.calcs[3]
+        const totals = [0, 0, 0, 0];
+        PowerConsumers.forEach((element) => {
+            totals[0] += element.calcs[0] || 0;
+            totals[1] += element.calcs[1] || 0;
+            totals[2] += element.calcs[2] || 0;
+            totals[3] += element.calcs[3] || 0;
         });
-        setPrices(totals)
-    }
+        setPrices(totals);
+    };
 
     const getData = async () => {
         try {
             const value = await AsyncStorage.getItem(STORAGE_KEY);
-            const json = JSON.parse(value);
-            if (json === null) {
-                json = [];
-            }
-            setMemory(json);
+            const json = value ? JSON.parse(value) : [];
+            dispatch({ type: "LOAD", data: json });
         } catch (ex) {
             console.log("error getting data: ", ex);
         }
     };
+
     const storeData = async (value) => {
         try {
             const json = JSON.stringify(value);
@@ -105,43 +93,61 @@ export default function ElectricityCalculatorScreen() {
             console.log("error storing data: ", ex);
         }
     };
+
     useEffect(() => {
         getData();
     }, []);
 
     useEffect(() => {
         storeData(PowerConsumers);
+        calculateTotals()
     }, [PowerConsumers]);
 
     return (
         <View>
             <View>
                 <Text>Price of electricity</Text>
-                <TextInput onChangeText={newPrice => handleCalculate(newPrice)}
-                    placeholder="0"></TextInput>
-                <Text>Daily: {prices[0]}</Text>
-                <Text>Weekly: {prices[1]}</Text>
-                <Text>Monthly: {prices[2]}</Text>
-                <Text>Yearly: {prices[3]}</Text>
+                <TextInput
+                    keyboardType="numeric"
+                    onChangeText={(newPrice) => handleCalculate(newPrice)}
+                    placeholder="Enter price per kWh"
+                />
+                <Text>Daily: {prices[0].toFixed(2)}</Text>
+                <Text>Weekly: {prices[1].toFixed(2)}</Text>
+                <Text>Monthly: {prices[2].toFixed(2)}</Text>
+                <Text>Yearly: {prices[3].toFixed(2)}</Text>
             </View>
-            <Button title="New item" onPress={toggleOverlay}></Button>
-            <Overlay 
-            isVisible={visible} 
-            onBackdropPress={toggleOverlay}>
-                <Text>Type data!</Text>
-                <TextInput 
-                placeholder="Enter name"
-                onChangeText={newName => setName(newName)}></TextInput>
-                <TextInput 
-                placeholder="Enter kWh yearly"
-                onChangeText={newKWhy => setKWhy(newKWhy)}></TextInput>
-                <Button title="Add" onPress={() => handleAdd([name,kWhY])}></Button>
+            <Button title="New item" onPress={toggleOverlay} />
+            <Overlay isVisible={visible} onBackdropPress={toggleOverlay}>
+                <Text>Enter data!</Text>
+                <TextInput
+                    placeholder="Enter name"
+                    value={name}
+                    onChangeText={(newName) => setName(newName)}
+                />
+                <TextInput
+                    placeholder="Enter kWh yearly"
+                    keyboardType="numeric"
+                    value={kWhY}
+                    onChangeText={(newKWhY) => setKWhY(newKWhY)}
+                />
+                <Button title="Add" onPress={handleAdd} />
             </Overlay>
             <FlatList
-            data={PowerConsumers}
-            renderItem={({item}) => PowerConsumerComp(item, handleUpdate)}
-            keyExtractor={item => item.id}
+                data={PowerConsumers}
+                renderItem={({ item }) => (
+                    <PowerConsumerComp
+                        item={item}
+                        update={(updatedItem) => {
+                            dispatch({ type: "UPDATE", ...updatedItem });
+                        }}
+                        remove={() => {
+                            dispatch({ type: "REMOVE", id: item.id})
+                        }}
+                    />
+                )}
+                keyExtractor={(item) => item.id.toString()}
             />
         </View>
-    )
+    );
 }
