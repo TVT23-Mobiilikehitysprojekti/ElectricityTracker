@@ -1,6 +1,5 @@
-
 import 'react-native-gesture-handler';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -11,12 +10,21 @@ import AiScreen from './screens/AiScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import ElectricityCalculatorScreen from './screens/ElectricityCalculatorScreen';
 import Menu from './components/Menu';
+import { useElectricityPriceWatcher } from './hooks/useElectricityPriceWatcher';
+import { registerForPushNotificationsAsync } from './components/notifications';
+import { registerBackgroundTask } from './components/taskManager'
 
 
 const Stack = createStackNavigator();
 
 export default function App() {
   const [isMenuVisible, setMenuVisible] = useState(false);
+  const userLimits = useElectricityPriceWatcher();
+
+  useEffect(() => {
+    registerForPushNotificationsAsync();
+    registerBackgroundTask();
+}, []);
 
   return (
     <NavigationContainer>

@@ -1,16 +1,95 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, Button, TouchableOpacity, Keyboard } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Button, TouchableOpacity, Keyboard, ScrollView, Image } from 'react-native';
 import * as Location from 'expo-location';
 import axios from 'axios';
 import { GEOAPIFY_KEY, OPENWEATHER_KEY } from '@env';
+import MapModal from '../components/mapModal';
 
 export default function WeatherScreen() {
   const [location, setLocation] = useState(null);
   const [city, setCity] = useState('');
-  const [weather, setWeather] = useState(null);
+  const [weatherData, setWeatherData] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [manualCity, setManualCity] = useState('');
   const [showInput, setShowInput] = useState(false);
+  const [citiesWeather, setCitiesWeather] = useState([]);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [selectedCity, setSelectedCity] = useState(null);
+
+  const cities = [
+    'Helsinki', 'Turku', 'Tampere', 'Vaasa', 'Seinäjoki', 'Jyväskylä', 'Lappeenranta',
+    'Joensuu', 'Kuopio', 'Kajaani', 'Oulu', 'Tornio', 'Rovaniemi', 'Tallinn', 'Riga',
+    'Vilnius', 'Stockholm', 'Copenhagen', 'Oslo', 'Hamburg', 'Berlin', 'Cologne', 
+    'Stuttgart', 'Warsaw', 'Vienna', 'Paris', 'Rotterdam'
+  ];
+
+  const cityImages = {
+    helsinki: require('./img/default.jpg'),
+    turku: require('./img/default.jpg'),
+    tampere: require('./img/default.jpg'),
+    vaasa: require('./img/default.jpg'),
+    seinäjoki: require('./img/default.jpg'),
+    jyväskylä: require('./img/default.jpg'),
+    lappeenranta: require('./img/default.jpg'),
+    joensuu: require('./img/default.jpg'),
+    kuopio: require('./img/default.jpg'),
+    kajaani: require('./img/default.jpg'),
+    oulu: require('./img/default.jpg'),
+    tornio: require('./img/default.jpg'),
+    rovaniemi: require('./img/default.jpg'),
+    tallinn: require('./img/default.jpg'),
+    riga: require('./img/default.jpg'),
+    vilnius: require('./img/default.jpg'),
+    stockholm: require('./img/default.jpg'),
+    copenhagen: require('./img/default.jpg'),
+    oslo: require('./img/default.jpg'),
+    hamburg: require('./img/default.jpg'),
+    berlin: require('./img/default.jpg'),
+    cologne: require('./img/default.jpg'),
+    stuttgart: require('./img/default.jpg'),
+    warsaw: require('./img/default.jpg'),
+    vienna: require('./img/default.jpg'),
+    paris: require('./img/default.jpg'),
+    rotterdam: require('./img/default.jpg'),
+  };  
+
+  const cityTranslations = {
+    Tallinn: 'Tallinna (Viro)',
+    Riga: 'Riika (Latvia)',
+    Vilnius: 'Vilna (Liettua)',
+    Stockholm: 'Tukholma (Ruotsi)',
+    Copenhagen: 'Kööpenhamina (Tanska)',
+    Oslo: 'Oslo (Norja)',
+    Hamburg: 'Hampuri (Saksa)',
+    Berlin: 'Berliini (Saksa)',
+    Cologne: 'Köln (Saksa)',
+    Stuttgart: 'Stuttgart (Saksa)',
+    Warsaw: 'Varsova (Puola)',
+    Vienna: 'Wien (Itävalta)',
+    Paris: 'Pariisi (Ranska)',
+    Rotterdam: 'Rotterdam (Alankomaat)'
+  };
+
+  const weatherTranslations = {
+    "clear sky": "Selkeä taivas",
+    "few clouds": "Vähän pilviä",
+    "scattered clouds": "Hajanaisia pilviä",
+    "broken clouds": "Rikkinäisiä pilviä",
+    "overcast clouds": "Pilvistä",
+    "light rain": "Kevyt sade",
+    "moderate rain": "Kohtalainen sade",
+    "heavy intensity rain": "Voimakas sade",
+    "shower rain": "Sadekuuroja",
+    "freezing rain": "Jäätävää sadetta",
+    "light snow": "Kevyttä lumisadetta",
+    "heavy snow": "Voimakasta lumisadetta",
+    "sleet": "Räntäsadetta",
+    "thunderstorm with light rain": "Ukkosmyrsky ja kevyt sade",
+    "thunderstorm with heavy rain": "Ukkosmyrsky ja voimakas sade",
+    "thunderstorm with hail": "Ukkosmyrsky ja rakeita",
+    "mist": "Sumua",
+    "fog": "Sumua",
+  };
 
   const fetchWeather = async (cityName) => {
     const WEATHER_API_KEY = OPENWEATHER_KEY;
@@ -18,10 +97,39 @@ export default function WeatherScreen() {
 
     try {
       const response = await axios.get(url);
-      setWeather(response.data);
+      setWeatherData({
+        temperature: (response.data.main.temp - 273.15).toFixed(2),
+        windSpeed: response.data.wind.speed,
+        weather: response.data.weather[0].description,
+        city: cityName,
+      });
     } catch (error) {
       console.error('Error fetching weather:', error);
       setErrorMsg('Error fetching weather data');
+    }
+  };
+
+  const fetchWeatherForCities = async () => {
+    const WEATHER_API_KEY = OPENWEATHER_KEY;
+    try {
+        const weatherData = await Promise.all(
+            cities.map(async (city) => {
+                const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${WEATHER_API_KEY}`;
+                const response = await axios.get(url);
+                return {
+                    city,
+                    temperature: (response.data.main.temp - 273.15).toFixed(2),
+                    tempMax: (response.data.main.temp_max - 273.15).toFixed(2),
+                    tempMin: (response.data.main.temp_min - 273.15).toFixed(2),
+                    windSpeed: response.data.wind.speed,
+                    weather: response.data.weather[0].description,
+                };
+            })
+        );
+        setCitiesWeather(weatherData);
+    } catch (error) {
+        console.error('Error fetching weather for cities:', error);
+        setErrorMsg('Error fetching weather data for cities');
     }
   };
 
@@ -52,8 +160,23 @@ export default function WeatherScreen() {
     }
   };
 
+  const getCityName = (city) => {
+    return cityTranslations[city] || city;
+  };
+
+  const getWeatherTranslation = (weather) => {
+    const normalizedWeather = weather.toLowerCase();
+    return weatherTranslations[normalizedWeather] || weather;
+  };
+
+  const getCityImage = (cityName) => {
+    const cityKey = cityName.toLowerCase();
+    return cityImages[cityKey] || cityImages.default;
+  };
+
   useEffect(() => {
     fetchCurrentLocationWeather();
+    fetchWeatherForCities();
   }, []);
 
   const handleManualCity = () => {
@@ -67,37 +190,78 @@ export default function WeatherScreen() {
     }
   };
 
-  return (
-    <View style={styles.container}>
-      {errorMsg ? (
-        <Text style={styles.error}>{errorMsg}</Text>
-      ) : city && weather ? (
-        <Text style={styles.info}>
-          {`City: ${city}\n`}
-          {`Weather: ${weather.weather[0].description}\n`}
-          {`Temperature: ${(weather.main.temp - 273.15).toFixed(2)}°C`}
-        </Text>
-      ) : (
-        <Text style={styles.info}>Fetching data...</Text>
-      )}
-
-      <Button title="Fetch Weather With GPS" onPress={fetchCurrentLocationWeather} />
-
-      <TouchableOpacity style={styles.setLocationButton} onPress={() => setShowInput(!showInput)}>
-        <Text style={styles.setLocationButtonText}>Set Location</Text>
-      </TouchableOpacity>
-
-      {showInput && (
-        <TextInput
-          style={styles.input}
-          placeholder="Enter city name"
-          value={manualCity}
-          onChangeText={(text) => setManualCity(text)}
-          onSubmitEditing={handleManualCity}
-        />
-      )}
-    </View>
-  );
+    const handleCityClick = (cityData) => {
+      setSelectedCity(cityData.city);
+      setModalVisible(true);
+    };
+  
+    return (
+      <View style={styles.container}>
+        {errorMsg ? (
+          <Text style={styles.error}>{errorMsg}</Text>
+        ) : (
+          <>
+            {weatherData && (
+              <View style={styles.userCityWeatherContainer}>
+                <Text style={styles.userCityText}>{`Sijaintisi: ${getCityName(weatherData.city)}`}</Text>
+                <Text style={styles.userCityText}>{`${weatherData.temperature}°C`},  {`${weatherData.windSpeed} m/s`}</Text>
+                <Text style={styles.userCityText}>{`${getWeatherTranslation(weatherData.weather)}`}</Text>
+              </View>
+            )}
+  
+            <Button title="Käytä laitteen sijaintia" onPress={fetchCurrentLocationWeather} />
+  
+            <TouchableOpacity style={styles.setLocationButton} onPress={() => setShowInput(!showInput)}>
+              <Text style={styles.setLocationButtonText}>Aseta sijainti</Text>
+            </TouchableOpacity>
+  
+            {showInput && (
+              <TextInput
+                style={styles.input}
+                placeholder="Kaupungin nimi"
+                value={manualCity}
+                onChangeText={(text) => setManualCity(text)}
+                onSubmitEditing={handleManualCity}
+              />
+            )}
+  
+            <Text style={styles.infoText}>
+              Sääolosuhteet voivat vaikuttaa pörssisähkön hintaan lämmityskustannusten ja uusiutuvan energian saatavuuden kautta.
+            </Text>
+  
+            {citiesWeather.length > 0 && (
+              <ScrollView style={styles.scrollContainer}>
+                {citiesWeather.map((cityData) => (
+                  <TouchableOpacity 
+                    key={cityData.city} 
+                    style={styles.weatherBox} 
+                    onPress={() => handleCityClick(cityData)}
+                  >
+                    <View style={styles.textContainer}>
+                      <Text style={styles.boxText}>{`${getCityName(cityData.city)}`}</Text>
+                      <Text style={styles.boxText}>{`${cityData.temperature}°C`}, {`${cityData.windSpeed} m/s`}</Text>
+                      <Text style={styles.boxText}>{`${getWeatherTranslation(cityData.weather)}`}</Text>
+                    </View>
+                    <View style={styles.imageContainer}>
+                      <Image
+                        source={getCityImage(cityData.city)}
+                        style={styles.image}
+                      />
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            )}
+  
+            <MapModal
+              isVisible={isModalVisible}
+              onClose={() => setModalVisible(false)}
+              cityName={selectedCity}
+            />
+          </>
+        )}
+      </View>
+    );
 }
 
 const styles = StyleSheet.create({
@@ -106,11 +270,41 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
+    padding: 20,
   },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
+  scrollContainer: {
+    marginTop: 20,
+    width: '100%',
+  },
+  weatherBox: {
+    backgroundColor: '#f0f0f0',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 15,
+    marginVertical: 10,
+    borderRadius: 10,
+  },
+  textContainer: {
+    flex: 1,
+  },
+  imageContainer: {
+    width: 176,
+    height: 58,
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
+  userCityWeatherContainer: {
+    padding: 15,
+    marginBottom: 20,
+  },
+  boxText: {
+    fontSize: 16,
+  },
+  userCityText: {
+    fontSize: 20,
   },
   input: {
     borderWidth: 1,
@@ -123,10 +317,6 @@ const styles = StyleSheet.create({
   error: {
     color: 'red',
     marginBottom: 10,
-  },
-  info: {
-    fontSize: 16,
-    marginBottom: 20,
   },
   setLocationButton: {
     marginVertical: 10,
