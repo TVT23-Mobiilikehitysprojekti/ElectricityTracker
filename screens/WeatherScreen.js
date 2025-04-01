@@ -91,7 +91,7 @@ export default function WeatherScreen() {
   };
 
   const fetchWeather = async (cityName) => {
-    const url = `https://electricitytracker-backend.onrender.com/weather?city=${cityName}`;
+    const url = `https://electricitytracker-backend.onrender.com/api/weather?city=${cityName}`;
   
     try {
       const response = await axios.get(url);
@@ -111,7 +111,7 @@ export default function WeatherScreen() {
     try {
         const weatherData = await Promise.all(
             cities.map(async (city) => {
-                const url = `https://electricitytracker-backend.onrender.com/weather?city=${city}`;
+                const url = `https://electricitytracker-backend.onrender.com/api/weather?city=${city}`;
                 const response = await axios.get(url);
                 return {
                     city,
@@ -144,7 +144,7 @@ export default function WeatherScreen() {
 
         if (currentLocation) {
             const { latitude, longitude } = currentLocation.coords;
-            const url = `https://electricitytracker-backend.onrender.com/location?latitude=${latitude}&longitude=${longitude}`;
+            const url = `https://electricitytracker-backend.onrender.com/api/location?latitude=${latitude}&longitude=${longitude}`;
             
             const response = await axios.get(url);
             const cityName = response.data.city || 'Unknown city';
