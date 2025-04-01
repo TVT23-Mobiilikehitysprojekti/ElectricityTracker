@@ -1,5 +1,6 @@
+import { Button } from '@rneui/base';
 import React, {useCallback} from 'react';
-import {Alert, Linking, Text, Pressable, StyleSheet, Dimensions } from 'react-native';
+import {Alert, Linking, Text, Pressable, StyleSheet, Dimensions, Image, TouchableOpacity } from 'react-native';
 
 const screenDimensions = Dimensions.get('screen')
 export default function OpenURLButton({url, children}) {
@@ -16,10 +17,19 @@ export default function OpenURLButton({url, children}) {
       }
     }, [url])
     const [primaryText, secondaryText] = React.Children.toArray(children);
+    const handleUpVote = () => {
+      
+    }
     return (
       <Pressable style={styles.button} onPress={handlePress}>
       <Text style={styles.primary}>{primaryText}</Text>
       {secondaryText && <Text style={styles.secondary}>{secondaryText}</Text>}
+      <TouchableOpacity style={''} onPress={handleUpVote}>
+        <Image source={require('../assets/up-arrow.png')}></Image>
+      </TouchableOpacity>
+      <TouchableOpacity>
+        <Image source={require('../assets/down-arrow.png')}></Image>
+      </TouchableOpacity>
       </Pressable>
     )
   };

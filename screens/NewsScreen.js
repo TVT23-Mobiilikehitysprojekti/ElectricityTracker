@@ -8,7 +8,7 @@ import axios from 'axios';
 export default function NewsScreen(){
     const [isLoading, setLoading] = useState(true);
     const [data, setData] = useState([]);
-    const api_key = '' //API KEY HERE!!!
+    const api_key = 'pub_75186a1de92c8ea090e98b7c8fd1b93901d2d' //API KEY HERE!!!
         const getNews = () => {
             try {
               axios.get(` https://newsdata.io/api/1/news?apikey=${api_key}&q=electricity&country=fi `).then(function (res){
@@ -24,7 +24,7 @@ export default function NewsScreen(){
             getNews();
           }, []);
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             <FlatList
                 data={data}
                 renderItem={ ({item}) => 
@@ -37,7 +37,7 @@ export default function NewsScreen(){
                 </OpenURLButton>}
                 keyExtractor={item => item.article_id}
             />
-        </SafeAreaView>
+        </View>
     )
 }
 const styles = StyleSheet.create({

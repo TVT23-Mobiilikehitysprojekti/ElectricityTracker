@@ -33,6 +33,8 @@ const reducer = (state, action) => {
                     element.kWhY * action.price
                 ]
             }));
+        case "LOAD":
+            return state = action.data
         default:
             return state;
     }
@@ -47,10 +49,6 @@ export default function ElectricityCalculatorScreen() {
 
     const toggleOverlay = () => {
         setVisible(!visible);
-    };
-
-    const handleRemove = (id) => {
-        dispatch({ type: "REMOVE", id });
     };
 
     const handleAdd = () => {
