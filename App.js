@@ -8,10 +8,12 @@ import WeatherScreen from './screens/WeatherScreen';
 import NewsScreen from './screens/NewsScreen';
 import AiScreen from './screens/AiScreen';
 import SettingsScreen from './screens/SettingsScreen';
+import ElectricityCalculatorScreen from './screens/ElectricityCalculatorScreen';
 import Menu from './components/Menu';
 import { useElectricityPriceWatcher } from './hooks/useElectricityPriceWatcher';
 import { registerForPushNotificationsAsync } from './components/notifications';
 import { registerBackgroundTask } from './components/taskManager'
+
 
 const Stack = createStackNavigator();
 
@@ -46,6 +48,7 @@ export default function App() {
         <Stack.Screen name="WeatherScreen" component={WeatherScreen} />
         <Stack.Screen name="NewsScreen" component={NewsScreen} />
         <Stack.Screen name="AiScreen" component={AiScreen} />
+        <Stack.Screen name="ElectricityCalculatorScreen" component={ElectricityCalculatorScreen} />
         <Stack.Screen name="SettingsScreen" component={SettingsScreen} />
       </Stack.Navigator>
       <Menu isVisible={isMenuVisible} setVisible={setMenuVisible} />
