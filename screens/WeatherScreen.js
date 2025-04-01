@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, Button, TouchableOpacity, Keyboard, ScrollView, Image } from 'react-native';
 import * as Location from 'expo-location';
 import axios from 'axios';
-import { GEOAPIFY_KEY, OPENWEATHER_KEY } from '@env';
 import MapModal from '../components/mapModal';
 
 export default function WeatherScreen() {
@@ -92,37 +91,35 @@ export default function WeatherScreen() {
   };
 
   const fetchWeather = async (cityName) => {
-    const WEATHER_API_KEY = OPENWEATHER_KEY;
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${WEATHER_API_KEY}`;
-
+    const url = `https://electricitytracker-backend.onrender.com/api/weather?city=${cityName}`;
+  
     try {
       const response = await axios.get(url);
       setWeatherData({
-        temperature: (response.data.main.temp - 273.15).toFixed(2),
-        windSpeed: response.data.wind.speed,
-        weather: response.data.weather[0].description,
-        city: cityName,
+        temperature: response.data.temperature,
+        windSpeed: response.data.windSpeed,
+        weather: response.data.weather,
+        city: response.data.city,
       });
     } catch (error) {
-      console.error('Error fetching weather:', error);
+      console.error('Error fetching weather from server:', error);
       setErrorMsg('Error fetching weather data');
     }
   };
 
   const fetchWeatherForCities = async () => {
-    const WEATHER_API_KEY = OPENWEATHER_KEY;
     try {
         const weatherData = await Promise.all(
             cities.map(async (city) => {
-                const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${WEATHER_API_KEY}`;
+                const url = `https://electricitytracker-backend.onrender.com/api/weather?city=${city}`;
                 const response = await axios.get(url);
                 return {
                     city,
-                    temperature: (response.data.main.temp - 273.15).toFixed(2),
-                    tempMax: (response.data.main.temp_max - 273.15).toFixed(2),
-                    tempMin: (response.data.main.temp_min - 273.15).toFixed(2),
-                    windSpeed: response.data.wind.speed,
-                    weather: response.data.weather[0].description,
+                    temperature: response.data.temperature,
+                    tempMax: response.data.tempMax,
+                    tempMin: response.data.tempMin,
+                    windSpeed: response.data.windSpeed,
+                    weather: response.data.weather,
                 };
             })
         );
@@ -133,32 +130,33 @@ export default function WeatherScreen() {
     }
   };
 
+
   const fetchCurrentLocationWeather = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
-      setErrorMsg('Permission to access location was denied');
-      return;
+        setErrorMsg('Permission to access location was denied');
+        return;
     }
 
     try {
-      let currentLocation = await Location.getCurrentPositionAsync({});
-      setLocation(currentLocation);
+        let currentLocation = await Location.getCurrentPositionAsync({});
+        setLocation(currentLocation);
 
-      if (currentLocation) {
-        const { latitude, longitude } = currentLocation.coords;
-        const GEOAPIFY_API_KEY = GEOAPIFY_KEY;
-        const url = `https://api.geoapify.com/v1/geocode/reverse?lat=${latitude}&lon=${longitude}&apiKey=${GEOAPIFY_API_KEY}`;
-        
-        const response = await axios.get(url);
-        const cityName = response.data.features[0].properties.city || 'Unknown city';
-        setCity(cityName);
-        fetchWeather(cityName);
-      }
+        if (currentLocation) {
+            const { latitude, longitude } = currentLocation.coords;
+            const url = `https://electricitytracker-backend.onrender.com/api/location?latitude=${latitude}&longitude=${longitude}`;
+            
+            const response = await axios.get(url);
+            const cityName = response.data.city || 'Unknown city';
+            setCity(cityName);
+            fetchWeather(cityName);
+        }
     } catch (error) {
-      console.error('Error fetching location:', error);
-      setErrorMsg('Error fetching location data');
+        console.error('Error fetching location:', error);
+        setErrorMsg('Error fetching location data');
     }
   };
+
 
   const getCityName = (city) => {
     return cityTranslations[city] || city;
