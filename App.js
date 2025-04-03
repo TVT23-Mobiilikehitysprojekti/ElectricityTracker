@@ -14,7 +14,6 @@ import { useElectricityPriceWatcher } from './hooks/useElectricityPriceWatcher';
 import { registerForPushNotificationsAsync } from './components/notifications';
 import { registerBackgroundTask } from './components/taskManager'
 
-
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -40,16 +39,17 @@ export default function App() {
             </TouchableOpacity>
           ),
           headerTitle: '',
+          headerTitleStyle: { fontWeight: 'bold', fontSize: 22, color: 'Black' },
           headerBackTitleVisible: false,
           headerLeft: null,
         }}
       >
-        <Stack.Screen name="MainScreen" component={MainScreen} />
-        <Stack.Screen name="WeatherScreen" component={WeatherScreen} />
-        <Stack.Screen name="NewsScreen" component={NewsScreen} />
-        <Stack.Screen name="AiScreen" component={AiScreen} />
-        <Stack.Screen name="ElectricityCalculatorScreen" component={ElectricityCalculatorScreen} />
-        <Stack.Screen name="SettingsScreen" component={SettingsScreen} />
+        <Stack.Screen name="MainScreen" component={MainScreen} options={{ headerTitle: 'Etusivu' }} />
+        <Stack.Screen name="WeatherScreen" component={WeatherScreen} options={{ headerTitle: 'Sää' }} />
+        <Stack.Screen name="NewsScreen" component={NewsScreen} options={{ headerTitle: 'Uutiset' }} />
+        <Stack.Screen name="AiScreen" component={AiScreen} options={{ headerTitle: 'Ai' }} />
+        <Stack.Screen name="ElectricityCalculatorScreen" component={ElectricityCalculatorScreen} options={{ headerTitle: 'Laskin' }} />
+        <Stack.Screen name="SettingsScreen" component={SettingsScreen} options={{ headerTitle: 'Asetukset' }}/>
       </Stack.Navigator>
       <Menu isVisible={isMenuVisible} setVisible={setMenuVisible} />
     </NavigationContainer>
@@ -61,10 +61,14 @@ const styles = StyleSheet.create({
     marginRight: 10,
     padding: 5,
     backgroundColor: '#007AFF',
+    minWidth: 70,
+    paddingVertical: 7,
     borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   menuButtonText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 18,
   },
 });

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ActivityIndicator, Button } from "react-native";
+import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { fetchElectricityPrice, fetchElectricityPriceHistory } from "../components/fetchElectricityPrice";
 
@@ -81,18 +81,25 @@ const MainScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text>Nyt: {getCurrentPrice()} c/kWh</Text>
-      <Text>
-        {showHistory
-          ? `30 päivän alin: ${getMinPrice()} c/kWh`
-          : `Päivän alin: ${getMinPrice()} c/kWh`}
-      </Text>
-      <Text>
-        {showHistory
-          ? `30 päivän ylin: ${getMaxPrice()} c/kWh`
-          : `Päivän ylin: ${getMaxPrice()} c/kWh`}
-      </Text>
-      <Text>Hinta trendi: {priceTrend}</Text>
+      <Text style={styles.header}>Sähkön Hinnat</Text>
+
+      <View style={styles.priceCard}>
+        <Text style={styles.currentPrice}>Nyt: {getCurrentPrice()} c/kWh</Text>
+      </View>
+
+      <View style={styles.detailCard}>
+        <Text style={styles.detailText}>
+          {showHistory
+            ? `30 päivän alin: ${getMinPrice()} c/kWh`
+            : `Päivän alin: ${getMinPrice()} c/kWh`}
+        </Text>
+        <Text style={styles.detailText}>
+          {showHistory
+            ? `30 päivän ylin: ${getMaxPrice()} c/kWh`
+            : `Päivän ylin: ${getMaxPrice()} c/kWh`}
+        </Text>
+        <Text style={styles.detailText}>Hinta trendi: {priceTrend}</Text>
+      </View>
 
       <LineChart
         data={{
@@ -116,10 +123,12 @@ const MainScreen = () => {
         }}
         style={styles.chart}
       />
-      <Button
-        title={showHistory ? "Näytä päivän hinnat" : "Näytä hintahistoria"}
-        onPress={toggleHistory}
-      />
+
+      <TouchableOpacity style={styles.button} onPress={toggleHistory}>
+        <Text style={styles.buttonText}>
+          {showHistory ? "Näytä päivän hinnat" : "Näytä hintahistoria"}
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -127,13 +136,61 @@ const MainScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    padding: 20,
+    backgroundColor: "#f4f4f8",
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginVertical: 20,
+    color: "#333",
+  },
+  priceCard: {
+    backgroundColor: "#007AFF",
+    borderRadius: 12,
+    padding: 15,
+    marginVertical: 10,
+  },
+  currentPrice: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#fff",
+    textAlign: "center",
+  },
+  detailCard: {
     backgroundColor: "#fff",
+    padding: 15,
+    marginVertical: 10,
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  detailText: {
+    fontSize: 16,
+    color: "#555",
+    marginBottom: 5,
+    textAlign: "center",
   },
   chart: {
-    marginVertical: 8,
+    marginVertical: 20,
     borderRadius: 16,
+    elevation: 5,
+  },
+  button: {
+    backgroundColor: "#28a745",
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginTop: 20,
+    alignItems: "center",
+  },
+  buttonText: {
+    fontSize: 16,
+    color: "#fff",
+    fontWeight: "bold",
   },
 });
 
