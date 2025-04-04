@@ -38,6 +38,12 @@ export default function Menu({ isVisible, setVisible }) {
                 </TouchableOpacity>
               )}
             />
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setVisible(false)}
+            >
+              <Text style={styles.closeButtonText}>Sulje</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </TouchableWithoutFeedback>
@@ -68,5 +74,17 @@ const styles = StyleSheet.create({
   },
   menuItemText: {
     fontSize: 18,
+  },
+  closeButton: {
+    marginTop: 20,
+    backgroundColor: '#dc3545',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  closeButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

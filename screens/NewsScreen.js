@@ -5,41 +5,46 @@ import { FlatList, View, StyleSheet, StatusBar } from "react-native";
 import OpenURLButton from "../components/OpenURLButton";
 import axios from 'axios';
 
-export default function NewsScreen(){
-    const [isLoading, setLoading] = useState(true);
-    const [data, setData] = useState([]);
-    const api_key = 'pub_75186a1de92c8ea090e98b7c8fd1b93901d2d' //API KEY HERE!!!
-        const getNews = () => {
-            try {
-              axios.get(` https://newsdata.io/api/1/news?apikey=${api_key}&q=electricity&country=fi `).then(function (res){
-                setData(res.data.results)
-              })
-            } catch (error) {
-              console.error(error);
-            } finally {
-              setLoading(false);
-            }
-          };
-        useEffect(() => {
-            getNews();
-          }, []);
-    return (
-        <View style={styles.container}>
-            <FlatList
-                data={data}
-                renderItem={ ({item}) => 
-                <OpenURLButton
-                    styling={styles.urlbutton}
-                    url={item.link}
-                >{item.title}
-                {item.source_id}
+export default function NewsScreen() {
+  const [isLoading, setLoading] = useState(true);
+  const [data, setData] = useState([]);
 
-                </OpenURLButton>}
-                keyExtractor={item => item.article_id}
-            />
-        </View>
-    )
+  const getNews = async () => {
+    try {
+        console.log("Fetching news");
+        const response = await axios.get("https://electricitytracker-backend.onrender.com/api/news");
+        setData(response.data.results);
+        console.log("Data set successfully.");
+    } catch (error) {
+        console.error("Error fetching news:", error);
+    } finally {
+        setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+      getNews();
+  }, []);
+
+  return (
+      <SafeAreaView style={styles.container}>
+          <FlatList
+              data={data}
+              renderItem={({ item }) => (
+                  <OpenURLButton
+                      styling={styles.urlbutton}
+                      url={item.link}
+                  >
+                      {item.title}
+                      {item.source_id}
+                  </OpenURLButton>
+              )}
+              keyExtractor={(item) => item.article_id}
+          />
+      </SafeAreaView>
+  );
 }
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
