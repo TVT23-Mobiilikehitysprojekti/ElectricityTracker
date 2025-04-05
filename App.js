@@ -45,10 +45,10 @@ export default function App() {
         }}
       >
         <Stack.Screen name="MainScreen" component={MainScreen} options={{ headerTitle: 'Etusivu' }} />
-        <Stack.Screen name="WeatherScreen" component={WeatherScreen} options={{ headerTitle: 'Sää' }} />
-        <Stack.Screen name="NewsScreen" component={NewsScreen} options={{ headerTitle: 'Uutiset' }} />
         <Stack.Screen name="AiScreen" component={AiScreen} options={{ headerTitle: 'Ai' }} />
         <Stack.Screen name="ElectricityCalculatorScreen" component={ElectricityCalculatorScreen} options={{ headerTitle: 'Laskin' }} />
+        <Stack.Screen name="NewsScreen" component={NewsScreen} options={{ headerTitle: 'Uutiset' }} />
+        <Stack.Screen name="WeatherScreen" component={WeatherScreen} options={{ headerTitle: 'Sää' }} />
         <Stack.Screen name="SettingsScreen" component={SettingsScreen} options={{ headerTitle: 'Asetukset' }}/>
       </Stack.Navigator>
       <Menu isVisible={isMenuVisible} setVisible={setMenuVisible} />
