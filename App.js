@@ -11,8 +11,8 @@ import SettingsScreen from './screens/SettingsScreen';
 import ElectricityCalculatorScreen from './screens/ElectricityCalculatorScreen';
 import Menu from './components/Menu';
 import { useElectricityPriceWatcher } from './hooks/useElectricityPriceWatcher';
-import { registerForPushNotificationsAsync } from './components/notifications';
-import { registerBackgroundTask } from './components/taskManager'
+import { registerForPushNotificationsAsync } from './utils/notifications';
+import { registerBackgroundTask } from './utils/taskManager'
 
 const Stack = createStackNavigator();
 
@@ -23,6 +23,10 @@ export default function App() {
   useEffect(() => {
     registerForPushNotificationsAsync();
     registerBackgroundTask();
+    (async () => {
+      const ready = await executeTask('https://electricitytracker-backend.onrender.com/huggingface/summarize');
+      console.log(ready ? 'Task executed' : 'Task not executed');
+    })();
 }, []);
 
   return (

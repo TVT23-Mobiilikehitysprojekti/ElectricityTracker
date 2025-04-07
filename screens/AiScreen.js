@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Text, Button, StyleSheet, ScrollView } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import axios from "axios";
 
 export default function AiScreen() {
@@ -35,12 +35,15 @@ export default function AiScreen() {
     setLoading(false);
   };
 
+  useEffect(() => {
+    fetchLatestSummary();
+  }, []);
+
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>
         {summaryDate ? `Summary for ${summaryDate}` : "Summary"}
       </Text>
-      <Button title="Fetch Latest Summary" onPress={fetchLatestSummary} disabled={loading} />
       
       <ScrollView style={styles.outputContainer}>
         <Text style={styles.label}>Summary:</Text>
