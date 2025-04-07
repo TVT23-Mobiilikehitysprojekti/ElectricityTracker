@@ -46,17 +46,50 @@ export default function AiScreen() {
       </Text>
       
       <ScrollView style={styles.outputContainer}>
-        <Text style={styles.label}>Summary:</Text>
-        <Text style={styles.output}>{loading ? "Loading..." : summary}</Text>
+        <View style={styles.summaryBox}>
+          <Text style={styles.label}>Summary:</Text>
+          <Text style={styles.output}>{loading ? "Loading..." : summary}</Text>
+        </View>
       </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, justifyContent: "center" },
-  heading: { fontSize: 20, fontWeight: "bold", marginBottom: 10, textAlign: "center" },
-  outputContainer: { marginTop: 10 },
-  label: { fontWeight: "bold", marginTop: 10 },
-  output: { marginTop: 5, fontSize: 16 },
+  container: {
+    flex: 1,
+    padding: 20,
+    justifyContent: "center",
+    backgroundColor: "#f8f9fa",
+  },
+  heading: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 15,
+    textAlign: "center",
+  },
+  outputContainer: {
+    marginTop: 15,
+  },
+  summaryBox: {
+    backgroundColor: "#ffffff",
+    padding: 15,
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  label: {
+    fontWeight: "bold",
+    fontSize: 16,
+    marginBottom: 5,
+    color: "#495057",
+  },
+  output: {
+    fontSize: 16,
+    color: "#212529", 
+    marginTop: 5,
+  },
 });

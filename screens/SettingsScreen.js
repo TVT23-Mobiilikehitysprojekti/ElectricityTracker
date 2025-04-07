@@ -62,9 +62,10 @@ export default function SettingsScreen() {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Asetukset</Text>
+
       <Button title="Test Notification" onPress={() => { triggerNotification(notificationsEnabled); }} />
 
-      <Text style={styles.title}>Asetukset</Text>
       <Text style={styles.description}>
         Voit asettaa sähkön hinnalle rajat joiden ylittämisestä saat ilmoituksen.
       </Text>
@@ -135,23 +136,26 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     padding: 20,
+    backgroundColor: '#f8f9fa',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+    color: '#212529',
   },
   description: {
     fontSize: 16,
     color: '#555',
-    marginBottom: 20,
+    marginBottom: 25,
     textAlign: 'center',
   },
   toggleButtonContainer: {
     marginBottom: 20,
+    width: '60%',
   },
   limitsContainer: {
     marginBottom: 20,
