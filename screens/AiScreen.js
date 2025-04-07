@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import axios from "axios";
 
 export default function AiScreen() {
@@ -35,16 +35,15 @@ export default function AiScreen() {
     setLoading(false);
   };
 
+  useEffect(() => {
+    fetchLatestSummary();
+  }, []);
+
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>
         {summaryDate ? `Summary for ${summaryDate}` : "Summary"}
       </Text>
-      <TouchableOpacity style={styles.fetchButton} onPress={fetchLatestSummary} disabled={loading}>
-      <Text style={styles.fetchButtonText}>
-        {loading ? "Fetching..." : "Fetch Latest Summary"}
-      </Text>
-    </TouchableOpacity>
       
       <ScrollView style={styles.outputContainer}>
         <View style={styles.summaryBox}>
@@ -68,19 +67,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 15,
     textAlign: "center",
-  },
-  fetchButton: {
-    backgroundColor: "#007bff",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    alignItems: "center",
-    marginVertical: 10,
-  },
-  fetchButtonText: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: "bold",
   },
   outputContainer: {
     marginTop: 15,

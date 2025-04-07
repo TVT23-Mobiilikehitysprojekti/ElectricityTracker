@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, Button, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useElectricityPriceWatcher } from '../hooks/useElectricityPriceWatcher';
-import { triggerNotification } from '../components/notifications';
+import { triggerNotification } from '../utils/notifications';
 
 export default function SettingsScreen() {
   const { userLimits, saveLimits, isLoading } = useElectricityPriceWatcher();
