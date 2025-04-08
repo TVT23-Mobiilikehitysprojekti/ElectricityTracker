@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity } from "react-native";
 import { LineChart } from "react-native-chart-kit";
-import { fetchElectricityPrice, fetchElectricityPriceHistory } from "../components/fetchElectricityPrice";
+import { fetchElectricityPrice, fetchElectricityPriceHistory } from "../utils/fetchElectricityPrice";
 
 const MainScreen = () => {
   const dateLabels = (days) => {

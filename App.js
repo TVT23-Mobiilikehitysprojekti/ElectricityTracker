@@ -11,8 +11,8 @@ import SettingsScreen from './screens/SettingsScreen';
 import ElectricityCalculatorScreen from './screens/ElectricityCalculatorScreen';
 import Menu from './components/Menu';
 import { useElectricityPriceWatcher } from './hooks/useElectricityPriceWatcher';
-import { registerForPushNotificationsAsync } from './components/notifications';
-import { registerBackgroundTask } from './components/taskManager'
+import { registerForPushNotificationsAsync } from './utils/notifications';
+import { registerBackgroundTask } from './utils/taskManager'
 
 const Stack = createStackNavigator();
 
@@ -23,6 +23,10 @@ export default function App() {
   useEffect(() => {
     registerForPushNotificationsAsync();
     registerBackgroundTask();
+    (async () => {
+      const ready = await executeTask('https://electricitytracker-backend.onrender.com/huggingface/summarize');
+      console.log(ready ? 'Task executed' : 'Task not executed');
+    })();
 }, []);
 
   return (
@@ -45,10 +49,10 @@ export default function App() {
         }}
       >
         <Stack.Screen name="MainScreen" component={MainScreen} options={{ headerTitle: 'Etusivu' }} />
-        <Stack.Screen name="WeatherScreen" component={WeatherScreen} options={{ headerTitle: 'Sää' }} />
-        <Stack.Screen name="NewsScreen" component={NewsScreen} options={{ headerTitle: 'Uutiset' }} />
         <Stack.Screen name="AiScreen" component={AiScreen} options={{ headerTitle: 'Ai' }} />
         <Stack.Screen name="ElectricityCalculatorScreen" component={ElectricityCalculatorScreen} options={{ headerTitle: 'Laskin' }} />
+        <Stack.Screen name="NewsScreen" component={NewsScreen} options={{ headerTitle: 'Uutiset' }} />
+        <Stack.Screen name="WeatherScreen" component={WeatherScreen} options={{ headerTitle: 'Sää' }} />
         <Stack.Screen name="SettingsScreen" component={SettingsScreen} options={{ headerTitle: 'Asetukset' }}/>
       </Stack.Navigator>
       <Menu isVisible={isMenuVisible} setVisible={setMenuVisible} />
