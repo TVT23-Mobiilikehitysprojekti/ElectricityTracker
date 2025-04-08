@@ -4,7 +4,7 @@ import {Alert, Linking, Text, Pressable, StyleSheet, Dimensions, Image, Touchabl
 import axios from 'axios';
 
 const screenDimensions = Dimensions.get('screen')
-export default function OpenURLButton({url, children}) {
+export default function OpenURLButton({url, userId, children}) {
     const [votes, setVotes] = useState({ upvotes: 0, downvotes: 0 });
     const [userVote, setUserVote] = useState(null);
 
@@ -22,7 +22,7 @@ export default function OpenURLButton({url, children}) {
 
     const fetchVotes = async () => {
       try {
-        const response = await axios.get(''); //Add urls
+        const response = await axios.get('https://electricitytracker-backend.onrender.com/vote/votes', {params: { itemId: url}});
         setVotes(response.data);
       } catch (error) {
         console.error(error);
@@ -31,7 +31,7 @@ export default function OpenURLButton({url, children}) {
 
     const fetchUserVote = async () => {
       try {
-        const response = await axios.get('', { params: { userId: '' } });
+        const response = await axios.get('https://electricitytracker-backend.onrender.com/vote/user-votes', { params: { userId: userId, itemId: url } });
         setUserVote(response.data.vote_type);
       } catch (error) {
         console.error(error);
@@ -40,10 +40,17 @@ export default function OpenURLButton({url, children}) {
   
     const handleVote = async (voteType) => {
       try {
-        await axios.post('', {
-          userId: '',
-          voteType,
+        if (voteType === 'upvote'){
+        await axios.post('https://electricitytracker-backend.onrender.com/vote/upvote', {
+          userId: userId,
+          itemId: url,
         });
+        } else if (voteType === 'downvote'){
+          await axios.post('https://electricitytracker-backend.onrender.com/vote/upvote', {
+            userId: userId,
+            itemId: url,
+          });
+        }
         fetchVotes();
         fetchUserVote();
       } catch (error) {
@@ -80,6 +87,9 @@ export default function OpenURLButton({url, children}) {
             source={require('../assets/down-arrow.png')}
             style={styles.image}></Image>
         </TouchableOpacity>
+      </View>
+      <View>
+        <Text>{votes}</Text>
       </View>
       </Pressable>
     )
