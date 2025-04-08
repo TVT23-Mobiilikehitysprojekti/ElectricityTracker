@@ -6,6 +6,9 @@ export default function AiScreen() {
   const [summary, setSummary] = useState("");
   const [summaryDate, setSummaryDate] = useState("");
   const [loading, setLoading] = useState(false);
+  const [dayOfWeek, setDayOfWeek] = useState("");
+
+  const daysOfWeek = ["Sunnuntain", "Maanantain", "Tiistain", "Keskiviikon", "Torstain", "Perjantain", "Lauantain"];
 
   const fetchLatestSummary = async () => {
     setLoading(true);
@@ -23,6 +26,10 @@ export default function AiScreen() {
         const formattedDate = timestamp.toLocaleDateString("fi-FI");
 
         setSummaryDate(formattedDate);
+
+        const calculatedDayOfWeek = daysOfWeek[timestamp.getDay()];
+        setDayOfWeek(calculatedDayOfWeek);
+
         setSummary(response.data.summary);
       } else {
         setSummary("No summary available.");
@@ -42,12 +49,11 @@ export default function AiScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>
-        {summaryDate ? `Summary for ${summaryDate}` : "Summary"}
+        {summaryDate ? `${dayOfWeek} tilannekatsaus (${summaryDate})` : "Summary"}
       </Text>
       
       <ScrollView style={styles.outputContainer}>
         <View style={styles.summaryBox}>
-          <Text style={styles.label}>Summary:</Text>
           <Text style={styles.output}>{loading ? "Loading..." : summary}</Text>
         </View>
       </ScrollView>
@@ -81,15 +87,9 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  label: {
-    fontWeight: "bold",
-    fontSize: 16,
-    marginBottom: 5,
-    color: "#495057",
-  },
   output: {
     fontSize: 16,
-    color: "#212529", 
+    color: "#212529",
     marginTop: 5,
   },
 });
