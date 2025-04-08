@@ -4,9 +4,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { FlatList, View, StyleSheet, StatusBar } from "react-native";
 import OpenURLButton from "../components/OpenURLButton";
 import axios from 'axios';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import uuid from 'react-native-uuid';
 
-
-
+const USER_ID = '@user_key';
 
 export default function NewsScreen() {
   const [isLoading, setLoading] = useState(true);

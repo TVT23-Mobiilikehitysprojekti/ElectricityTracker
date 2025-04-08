@@ -6,7 +6,7 @@ import { Overlay } from '@rneui/themed';
 import PowerConsumerComp from "../components/PowerConsumerComp";
 
 const STORAGE_KEY = '@items_key';
-const USER_ID = '@user_key';
+
 
 function getByteSize(arr) {
     let bytes = 0;
