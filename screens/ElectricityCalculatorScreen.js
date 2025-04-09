@@ -7,6 +7,24 @@ import PowerConsumerComp from "../components/PowerConsumerComp";
 
 const STORAGE_KEY = '@items_key';
 
+
+function getByteSize(arr) {
+    let bytes = 0;
+
+    arr.forEach(item => {
+        if (typeof item === 'string') {
+            bytes += item.length * 2; // Each character in a string is roughly 2 bytes
+        } else if (typeof item === 'number') {
+            bytes += 8; // Numbers typically take 8 bytes
+        } else if (typeof item === 'boolean') {
+            bytes += 4; // Booleans usually take around 4 bytes
+        } else if (item instanceof Object) {
+            bytes += JSON.stringify(item).length * 2; // Approximate object size by stringifying
+        }
+    });
+
+    return bytes;
+}
 const reducer = (state, action) => {
     switch (action.type) {
         case "REMOVE":
@@ -91,6 +109,7 @@ export default function ElectricityCalculatorScreen() {
             console.log("error storing data: ", ex);
         }
     };
+
 
     useEffect(() => {
         getData();

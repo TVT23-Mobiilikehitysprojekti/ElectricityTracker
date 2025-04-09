@@ -13,6 +13,7 @@ export async function registerForPushNotificationsAsync() {
   }
 }
 
+/*
 export async function triggerNotification(notificationsEnabled) {
   console.log("triggerNotification function called");
 
@@ -35,6 +36,7 @@ export async function triggerNotification(notificationsEnabled) {
     console.error("Error scheduling notification:", error);
   }
 }
+*/
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({

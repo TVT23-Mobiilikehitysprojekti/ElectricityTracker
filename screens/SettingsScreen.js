@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, Button, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Button, ActivityIndicator,Switch, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useElectricityPriceWatcher } from '../hooks/useElectricityPriceWatcher';
-import { triggerNotification } from '../utils/notifications';
+// import { triggerNotification } from '../utils/notifications';
 
 export default function SettingsScreen() {
   const { userLimits, saveLimits, isLoading } = useElectricityPriceWatcher();
@@ -60,25 +60,28 @@ export default function SettingsScreen() {
     );
   }
 
+  // <Button title="Test Notification" onPress={() => { triggerNotification(notificationsEnabled); }} />
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Asetukset</Text>
-
-      <Button title="Test Notification" onPress={() => { triggerNotification(notificationsEnabled); }} />
 
       <Text style={styles.description}>
         Voit asettaa sähkön hinnalle rajat joiden ylittämisestä saat ilmoituksen.
       </Text>
 
-      <View style={styles.toggleButtonContainer}>
-        <Button
-          title={notificationsEnabled ? "Ilmoitukset päällä" : "Ilmoitukset pois päältä"}
-          onPress={notification_setting}
-          color={notificationsEnabled ? '#28a745' : '#dc3545'}
-        />
+      <View style={styles.settingItem}>
+        <Text style={styles.label}>Ilmoitukset</Text>
+          <Switch
+            style={{ transform: [{ scaleX: 1.2 }, { scaleY: 1.2 }] }}
+            trackColor={{ false: "#767577", true: "#81b0ff" }}
+            thumbColor={notificationsEnabled ? "#fafafa" : "#f4f3f4"}
+            onValueChange={notification_setting}
+            value={notificationsEnabled}
+          />
       </View>
 
-      <View style={styles.limitsContainer}>
+      <View style={styles.settingItem2}>
         <Text style={styles.label}>
           Alaraja: {userLimits.lowerLimit.toFixed(2)} c/kWh
         </Text>
@@ -91,20 +94,21 @@ export default function SettingsScreen() {
               onChangeText={setTemporaryLowerLimit}
               placeholder="Alaraja"
             />
-            <Button title="Tallenna" onPress={handleSaveLowerLimit} />
+            <TouchableOpacity style={styles.saveButton} onPress={handleSaveLowerLimit}>
+              <Text style={styles.saveButtonText}>Tallenna</Text>
+            </TouchableOpacity>
           </>
         ) : (
-          <Button
-            title="Muuta"
-            onPress={() => {
-              setTemporaryLowerLimit(userLimits.lowerLimit.toString());
-              setIsEditingLowerLimit(true);
-            }}
-          />
+          <TouchableOpacity style={styles.editButton} onPress={() => {
+            setTemporaryLowerLimit(userLimits.lowerLimit.toString());
+            setIsEditingLowerLimit(true);
+          }}>
+            <Text style={styles.editButtonText}>Muuta</Text>
+          </TouchableOpacity>
         )}
       </View>
 
-      <View style={styles.limitsContainer}>
+      <View style={styles.settingItem2}>
         <Text style={styles.label}>
           Yläraja: {userLimits.upperLimit.toFixed(2)} c/kWh
         </Text>
@@ -117,16 +121,17 @@ export default function SettingsScreen() {
               onChangeText={setTemporaryUpperLimit}
               placeholder="Yläraja"
             />
-            <Button title="Tallenna" onPress={handleSaveUpperLimit} />
+            <TouchableOpacity style={styles.saveButton} onPress={handleSaveUpperLimit}>
+              <Text style={styles.saveButtonText}>Tallenna</Text>
+            </TouchableOpacity>
           </>
         ) : (
-          <Button
-            title="Muuta"
-            onPress={() => {
-              setTemporaryUpperLimit(userLimits.upperLimit.toString());
-              setIsEditingUpperLimit(true);
-            }}
-          />
+          <TouchableOpacity style={styles.editButton} onPress={() => {
+            setTemporaryUpperLimit(userLimits.upperLimit.toString());
+            setIsEditingUpperLimit(true);
+          }}>
+            <Text style={styles.editButtonText}>Muuta</Text>
+          </TouchableOpacity>
         )}
       </View>
     </View>
@@ -136,16 +141,15 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
     padding: 20,
     backgroundColor: '#f8f9fa',
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 20,
     color: '#212529',
+    textAlign: 'center',
   },
   description: {
     fontSize: 16,
@@ -153,18 +157,9 @@ const styles = StyleSheet.create({
     marginBottom: 25,
     textAlign: 'center',
   },
-  toggleButtonContainer: {
-    marginBottom: 20,
-    width: '60%',
-  },
   limitsContainer: {
     marginBottom: 20,
     alignItems: 'center',
-  },
-  label: {
-    fontSize: 16,
-    marginTop: 10,
-    marginBottom: 5,
   },
   input: {
     borderWidth: 1,
@@ -172,7 +167,66 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     marginBottom: 10,
-    width: '80%',
+    width: '100%',
     textAlign: 'center',
+    backgroundColor: '#f9f9f9',
+  },
+  settingItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 15,
+    backgroundColor: "#fff",
+    marginVertical: 20,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  label: {
+    fontSize: 18,
+    color: "#333",
+  },
+  settingItem2: {
+    marginVertical: 20,
+    backgroundColor: '#ffffff',
+    padding: 15,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+    alignItems: 'center',
+    width: '100%',
+    alignSelf: 'center',
+  },
+  editButton: {
+    backgroundColor: '#007bff', 
+    paddingVertical: 12,       
+    paddingHorizontal: 20,    
+    borderRadius: 8,          
+    alignItems: 'center',      
+    width: '100%',            
+    marginTop: 10,             
+  },
+  editButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+  },
+  saveButton: {
+    backgroundColor: '#28a745', 
+    paddingVertical: 12,       
+    paddingHorizontal: 20,    
+    borderRadius: 8,          
+    alignItems: 'center',      
+    width: '100%',            
+    marginTop: 10,
+  },
+  saveButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
   },
 });

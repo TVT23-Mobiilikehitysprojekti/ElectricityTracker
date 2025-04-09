@@ -4,10 +4,15 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { FlatList, View, StyleSheet, StatusBar } from "react-native";
 import OpenURLButton from "../components/OpenURLButton";
 import axios from 'axios';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import uuid from 'react-native-uuid';
+
+const USER_ID = '@user_key';
 
 export default function NewsScreen() {
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState([]);
+  const [userId, setUserId] = useState('');
 
   const getNews = async () => {
     try {
@@ -22,8 +27,25 @@ export default function NewsScreen() {
     }
   };
 
+    const checkUserId = async () => {
+        try {
+            const value = await AsyncStorage.getItem(USER_ID);
+            const json = value ? JSON.parse(value) : null;
+            if (json === null) {
+                id = uuid.v4()
+                await AsyncStorage.setItem(USER_ID, id);
+                setUserId(id);
+            } else {
+                setUserId(json)
+            }
+        } catch (ex) {
+            console.log("error getting user_id: ", ex);
+        }
+    };
+  
   useEffect(() => {
       getNews();
+      checkUserId();
   }, []);
 
   return (
@@ -34,6 +56,7 @@ export default function NewsScreen() {
                   <OpenURLButton
                       styling={styles.urlbutton}
                       url={item.link}
+                      userId={userId}
                   >
                       {item.title}
                       {item.source_id}
