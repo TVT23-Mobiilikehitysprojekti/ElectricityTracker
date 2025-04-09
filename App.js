@@ -13,8 +13,27 @@ import Menu from './components/Menu';
 import { useElectricityPriceWatcher } from './hooks/useElectricityPriceWatcher';
 import { registerForPushNotificationsAsync } from './utils/notifications';
 import { registerBackgroundTask } from './utils/taskManager'
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 
 const Stack = createStackNavigator();
+const Tab = createMaterialTopTabNavigator();
+const SwipeableTabs = () => (
+  <Tab.Navigator
+  screenOptions={{
+    tabBarScrollEnabled: true, 
+    tabBarLabelStyle: { fontSize: 14, fontWeight: 'bold', },
+    tabBarStyle: { backgroundColor: '#f8f9fa' },
+    tabBarIndicatorStyle: { backgroundColor: '#007bff', height: 3 },
+  }}
+>
+    <Tab.Screen name="Etusivu" component={MainScreen} />
+    <Tab.Screen name="Katselmus" component={AiScreen} />
+    <Tab.Screen name="Laskin" component={ElectricityCalculatorScreen} />
+    <Tab.Screen name="Uutiset" component={NewsScreen} />
+    <Tab.Screen name="Sää" component={WeatherScreen} />
+    <Tab.Screen name="Asetukset" component={SettingsScreen} />
+  </Tab.Navigator>
+);
 
 export default function App() {
   const [isMenuVisible, setMenuVisible] = useState(false);
@@ -31,29 +50,22 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="MainScreen"
-        screenOptions={{
-          headerRight: () => (
-            <TouchableOpacity
-              onPress={() => setMenuVisible(true)}
-              style={styles.menuButton}
-            >
-              <Text style={styles.menuButtonText}>Menu</Text>
-            </TouchableOpacity>
-          ),
-          headerTitle: '',
-          headerTitleStyle: { fontWeight: 'bold', fontSize: 22, color: 'Black' },
-          headerBackTitleVisible: false,
-          headerLeft: null,
-        }}
-      >
-        <Stack.Screen name="MainScreen" component={MainScreen} options={{ headerTitle: 'Etusivu' }} />
-        <Stack.Screen name="AiScreen" component={AiScreen} options={{ headerTitle: 'Ai' }} />
-        <Stack.Screen name="ElectricityCalculatorScreen" component={ElectricityCalculatorScreen} options={{ headerTitle: 'Laskin' }} />
-        <Stack.Screen name="NewsScreen" component={NewsScreen} options={{ headerTitle: 'Uutiset' }} />
-        <Stack.Screen name="WeatherScreen" component={WeatherScreen} options={{ headerTitle: 'Sää' }} />
-        <Stack.Screen name="SettingsScreen" component={SettingsScreen} options={{ headerTitle: 'Asetukset' }}/>
+      <Stack.Navigator>
+        <Stack.Screen
+            name="SwipeableTabs"
+            component={SwipeableTabs}
+            options={{
+              headerRight: () => (
+                <TouchableOpacity
+                  onPress={() => setMenuVisible(true)}
+                  style={styles.menuButton}
+                >
+                  <Text style={styles.menuButtonText}>Menu</Text>
+                </TouchableOpacity>
+              ),
+              headerTitle: 'Electricity Tracer', 
+            }}
+          />
       </Stack.Navigator>
       <Menu isVisible={isMenuVisible} setVisible={setMenuVisible} />
     </NavigationContainer>
