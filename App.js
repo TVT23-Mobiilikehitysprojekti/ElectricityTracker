@@ -9,7 +9,6 @@ import NewsScreen from './screens/NewsScreen';
 import AiScreen from './screens/AiScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import ElectricityCalculatorScreen from './screens/ElectricityCalculatorScreen';
-import Menu from './components/Menu';
 import { useElectricityPriceWatcher } from './hooks/useElectricityPriceWatcher';
 import { registerForPushNotificationsAsync } from './utils/notifications';
 import { registerBackgroundTask } from './utils/taskManager'
@@ -36,7 +35,6 @@ const SwipeableTabs = () => (
 );
 
 export default function App() {
-  const [isMenuVisible, setMenuVisible] = useState(false);
   const userLimits = useElectricityPriceWatcher();
 
   useEffect(() => {
@@ -52,39 +50,13 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen
-            name="SwipeableTabs"
-            component={SwipeableTabs}
-            options={{
-              headerRight: () => (
-                <TouchableOpacity
-                  onPress={() => setMenuVisible(true)}
-                  style={styles.menuButton}
-                >
-                  <Text style={styles.menuButtonText}>Menu</Text>
-                </TouchableOpacity>
-              ),
-              headerTitle: 'Electricity Tracer', 
-            }}
-          />
+          name="SwipeableTabs"
+          component={SwipeableTabs}
+          options={{
+            headerTitle: 'Electricity Tracker', 
+          }}
+        />
       </Stack.Navigator>
-      <Menu isVisible={isMenuVisible} setVisible={setMenuVisible} />
     </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  menuButton: {
-    marginRight: 10,
-    padding: 5,
-    backgroundColor: '#007AFF',
-    minWidth: 70,
-    paddingVertical: 7,
-    borderRadius: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  menuButtonText: {
-    color: 'white',
-    fontSize: 18,
-  },
-});
