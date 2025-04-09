@@ -16,10 +16,7 @@ export default function AiScreen() {
     setSummaryDate("");
 
     try {
-      console.log("Fetching latest summary from the backend...");
       const response = await axios.get("https://electricitytracker-backend.onrender.com/huggingface/latest-summary");
-
-      console.log("API Response:", response.data);
 
       if (response.data && response.data.summary && response.data.timestamp) {
         const timestamp = new Date(response.data.timestamp);
