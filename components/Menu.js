@@ -5,12 +5,12 @@ import { useNavigation } from '@react-navigation/native';
 export default function Menu({ isVisible, setVisible }) {
   const navigation = useNavigation();
   const screens = [
-    { name: 'MainScreen', label: 'Etusivu' },
-    { name: 'AiScreen', label: 'Päivän tilannekatsaus' },
-    { name: 'ElectricityCalculatorScreen', label: 'Hintalaskuri' },
-    { name: 'NewsScreen', label: 'Uutiset' },
-    { name: 'WeatherScreen', label: 'Säätiedot' },
-    { name: 'SettingsScreen', label: 'Asetukset' },
+    { name: 'Etusivu', label: 'Etusivu' },
+    { name: 'Katselmus', label: 'Päivän tilannekatsaus' },
+    { name: 'Laskin', label: 'Hintalaskuri' },
+    { name: 'Uutiset', label: 'Uutiset' },
+    { name: 'Sää', label: 'Säätiedot' },
+    { name: 'Asetukset', label: 'Asetukset' },
   ];
 
   return (
