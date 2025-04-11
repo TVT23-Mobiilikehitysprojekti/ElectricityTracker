@@ -16,10 +16,8 @@ export default function NewsScreen() {
 
   const getNews = async () => {
     try {
-        console.log("Fetching news");
         const response = await axios.get("https://electricitytracker-backend.onrender.com/api/news");
         setData(response.data.results);
-        console.log("Data set successfully.");
     } catch (error) {
         console.error("Error fetching news:", error);
     } finally {

@@ -18,6 +18,7 @@ const useRateLimitedTask = (key, interval = 3 * 60 * 60 * 1000) => {
   }, [key, interval]);
 
   const executeTask = useCallback(async (url) => {
+    console.log("executeTask");
     const allowed = await canExecute();
     if (allowed) {
       try {
@@ -25,7 +26,7 @@ const useRateLimitedTask = (key, interval = 3 * 60 * 60 * 1000) => {
         console.log('Response:', response.data);
         return response.data;
       } catch (error) {
-        console.error('Error during GET request:', error);
+        console.error('Error during GET request (useRateLimitedTask):', error);
       }
     } else {
       console.log('Task execution blocked due to rate limiter.');

@@ -91,50 +91,71 @@ export default function WeatherScreen() {
   };
 
   const fetchWeather = async (cityName) => {
-    const url = `https://electricitytracker-backend.onrender.com/api/weather?city=${cityName}`;
-  
     try {
-      const response = await axios.get(url);
-      setWeatherData({
-        temperature: response.data.temperature,
-        windSpeed: response.data.windSpeed,
-        weather: response.data.weather,
-        city: response.data.city,
+      const url = `https://electricitytracker-backend.onrender.com/api/weather?city=${encodeURIComponent(cityName)}`;
+      console.log(url);
+  
+      const response = await axios.get(url, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
+  
+      if (response && response.data && response.data.length > 0) {
+        const cityWeather = response.data[0];
+        setWeatherData({
+          city: cityWeather.city || "Unknown",
+          temperature: cityWeather.temperature || "N/A",
+          windSpeed: cityWeather.windSpeed || "N/A",
+          weather: cityWeather.weather || "N/A",
+        });
+      } else {
+        throw new Error('No valid data in the response');
+      }
     } catch (error) {
-      console.error('Error fetching weather from server:', error);
-      setErrorMsg('Error fetching weather data');
+      console.error('Error fetching weather for city:', error.response?.data || error.message);
+  
+      setWeatherData({
+        city: "Unknown",
+        temperature: "N/A",
+        windSpeed: "N/A",
+        weather: "N/A",
+      });
     }
-  };
+  };  
 
   const fetchWeatherForCities = async () => {
     try {
-        const weatherData = await Promise.all(
-            cities.map(async (city) => {
-                const url = `https://electricitytracker-backend.onrender.com/api/weather?city=${city}`;
-                const response = await axios.get(url);
-                return {
-                    city,
-                    temperature: response.data.temperature,
-                    tempMax: response.data.tempMax,
-                    tempMin: response.data.tempMin,
-                    windSpeed: response.data.windSpeed,
-                    weather: response.data.weather,
-                };
-            })
-        );
-        setCitiesWeather(weatherData);
+      const citiesQuery = encodeURIComponent(cities.join(','));
+      const url = `https://electricitytracker-backend.onrender.com/api/weather?cities=${citiesQuery}`;
+      console.log(url);
+  
+      const response = await axios.get(url, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (response && response.data) {
+        const weatherDataCities = response.data.map((cityWeather) => ({
+          city: cityWeather.city || "Unknown",
+          temperature: cityWeather.temperature || "N/A",
+          windSpeed: cityWeather.windSpeed || "N/A",
+          weather: cityWeather.weather || "N/A",
+        }));
+        setCitiesWeather(weatherDataCities);
+      } else {
+        throw new Error('No data in the response');
+      }
     } catch (error) {
-        console.error('Error fetching weather for cities:', error);
-        setErrorMsg('Error fetching weather data for cities');
+      console.error('Error fetching weather for cities:', error.response?.data || error.message);
     }
   };
-
 
   const fetchCurrentLocationWeather = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
+        console.log('Permission to access location was denied');
         return;
     }
 
@@ -145,6 +166,7 @@ export default function WeatherScreen() {
         if (currentLocation) {
             const { latitude, longitude } = currentLocation.coords;
             const url = `https://electricitytracker-backend.onrender.com/api/location?latitude=${latitude}&longitude=${longitude}`;
+            console.log(url);
             
             const response = await axios.get(url);
             const cityName = response.data.city || 'Unknown city';
@@ -153,11 +175,9 @@ export default function WeatherScreen() {
         }
     } catch (error) {
         console.error('Error fetching location:', error);
-        setErrorMsg('Error fetching location data');
     }
   };
-
-
+  
   const getCityName = (city) => {
     return cityTranslations[city] || city;
   };
@@ -192,7 +212,7 @@ export default function WeatherScreen() {
       setSelectedCity(cityData.city);
       setModalVisible(true);
     };
-  
+
     return (
       <View style={styles.container}>
         {errorMsg ? (
