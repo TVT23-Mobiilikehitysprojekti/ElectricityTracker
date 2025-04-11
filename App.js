@@ -10,6 +10,7 @@ import AiScreen from './screens/AiScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import ElectricityCalculatorScreen from './screens/ElectricityCalculatorScreen';
 import { useElectricityPriceWatcher } from './hooks/useElectricityPriceWatcher';
+import useRateLimitedTask from './hooks/useRateLimitedTask';
 import { registerForPushNotificationsAsync } from './utils/notifications';
 import { registerBackgroundTask } from './utils/taskManager'
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
@@ -35,16 +36,18 @@ const SwipeableTabs = () => (
 );
 
 export default function App() {
-  const userLimits = useElectricityPriceWatcher();
+  const { executeTask } = useRateLimitedTask('summaryRequest')
 
   useEffect(() => {
     registerForPushNotificationsAsync();
     registerBackgroundTask();
     (async () => {
-      const ready = await executeTask('https://electricitytracker-backend.onrender.com/huggingface/summarize');
-      console.log(ready ? 'Task executed' : 'Task not executed');
+      console.log("Requesting /summarize route");
+      const data = await executeTask('https://electricitytracker-backend.onrender.com/huggingface/summarize');
+      console.log(data ? 'Summary requested successfully' : 'Requesting summary failed');
     })();
-}, []);
+  }, [executeTask]);
+
 
   return (
     <NavigationContainer>
