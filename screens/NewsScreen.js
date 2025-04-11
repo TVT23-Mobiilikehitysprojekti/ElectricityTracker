@@ -1,13 +1,17 @@
-
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FlatList, View, StyleSheet, StatusBar } from "react-native";
 import OpenURLButton from "../components/OpenURLButton";
-import axios from 'axios';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import uuid from 'react-native-uuid';
+import RSSParser from 'react-native-rss-parser';
 
 const USER_ID = '@user_key';
+const rssFeeds = [
+    "https://feeds.yle.fi/uutiset/v1/majorHeadlines/YLE_UUTISET.rss",
+    "https://feeds.yle.fi/uutiset/v1/recent.rss?publisherIds=YLE_UUTISET",
+    "https://feeds.yle.fi/uutiset/v1/mostRead/YLE_UUTISET.rss"
+];
 
 export default function NewsScreen() {
   const [isLoading, setLoading] = useState(true);
@@ -16,72 +20,100 @@ export default function NewsScreen() {
 
   const getNews = async () => {
     try {
-        console.log("Fetching news");
-        const response = await axios.get("https://electricitytracker-backend.onrender.com/api/news");
-        setData(response.data.results);
-        console.log("Data set successfully.");
+      console.log("Fetching news");
+      let allItems = [];
+      for (const feed of rssFeeds) {
+        const response = await fetch(feed);
+        const text = await response.text();
+        const rss = await RSSParser.parse(text);
+        allItems = [...allItems, ...rss.items];
+      }
+      const filteredItems = filterByCategory(allItems, ["Energia", "Sähkön hinta", "politiikka"]);
+      setData(filteredItems);
     } catch (error) {
-        console.error("Error fetching news:", error);
+      console.error("Error fetching news:", error);
     } finally {
-        setLoading(false);
+      setLoading(false);
+    }
+  };
+  
+  const filterByCategory = (items, categories) => {
+    return items.filter(item => {
+      if (item.categories && Array.isArray(item.categories)) {
+        return item.categories.some(cat => {
+          return categories.includes(cat.name);
+        });
+      }
+      return false;
+    });
+  };  
+  
+  const checkUserId = async () => {
+    try {
+      const value = await AsyncStorage.getItem(USER_ID);
+      let json = null;
+      if (value) {
+        try {
+          json = JSON.parse(value);
+        } catch (parseError) {
+          console.log("error parsing user_id: ", parseError);
+        }
+      }
+      if (json === null) {
+        const id = uuid.v4();
+        await AsyncStorage.setItem(USER_ID, JSON.stringify(id));
+        setUserId(id);
+      } else {
+        setUserId(json);
+      }
+    } catch (ex) {
+      console.log("error getting user_id: ", ex);
     }
   };
 
-    const checkUserId = async () => {
-        try {
-            const value = await AsyncStorage.getItem(USER_ID);
-            const json = value ? JSON.parse(value) : null;
-            if (json === null) {
-                id = uuid.v4()
-                await AsyncStorage.setItem(USER_ID, id);
-                setUserId(id);
-            } else {
-                setUserId(json)
-            }
-        } catch (ex) {
-            console.log("error getting user_id: ", ex);
-        }
-    };
-  
   useEffect(() => {
+    checkUserId();
+    getNews();
+    const interval = setInterval(() => {
       getNews();
-      checkUserId();
+    }, 60000); // Fetch news every 60 seconds
+
+    return () => clearInterval(interval);
   }, []);
 
   return (
-      <SafeAreaView style={styles.container}>
-          <FlatList
-              data={data}
-              renderItem={({ item }) => (
-                  <OpenURLButton
-                      styling={styles.urlbutton}
-                      url={item.link}
-                      userId={userId}
-                  >
-                      {item.title}
-                      {item.source_id}
-                  </OpenURLButton>
-              )}
-              keyExtractor={(item) => item.article_id}
-          />
-      </SafeAreaView>
+    <SafeAreaView style={styles.container}>
+      <FlatList
+        data={data}
+        renderItem={({ item }) => (
+          <OpenURLButton
+            styling={styles.urlbutton}
+            url={item.id}
+            userId={userId}
+          >
+            {item.title}
+            {item.published}
+          </OpenURLButton>
+        )}
+        keyExtractor={(item, index) => index.toString()}
+      />
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        marginTop: StatusBar.currentHeight || 0,
-    },
-    urlbutton: {
-        fontSize: 54,
-        backgroundColor: '#f9c2ff',
-        padding: 60,
-        marginVertical: 15,
-        marginHorizontal: 16
-    },
-    text: {
-        fontSize: 200,
-    }
+  container: {
+    flex: 1,
+    marginTop: StatusBar.currentHeight || 0,
+  },
+  urlbutton: {
+    fontSize: 54,
+    backgroundColor: '#f9c2ff',
+    padding: 60,
+    marginVertical: 15,
+    marginHorizontal: 16
+  },
+  text: {
+    fontSize: 200,
+  }
 });
-
