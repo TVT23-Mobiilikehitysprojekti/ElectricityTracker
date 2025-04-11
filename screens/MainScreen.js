@@ -1,113 +1,166 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity } from "react-native";
+import {View, Text, StyleSheet, Button } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { fetchElectricityPrice, fetchElectricityPriceHistory } from "../utils/fetchElectricityPrice";
 
 const MainScreen = () => {
-  const dateLabels = (days) => {
-    const dates = [];
-    for (let i = days - 1; i >= 0; i--) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      if (i % 5 === 0) {
-        dates.push(`${date.getDate()}.${date.getMonth() + 1}.`);
-      } else {
-        dates.push("");
-      }
-    }
-    return dates;
-  };
-
-  const [prices, setPrices] = useState([]);
+  const [currentData, setCurrentData] = useState({ EE: [], FI: [] });
+  const [historyData, setHistoryData] = useState({ EE: [], FI: [] });
   const [loading, setLoading] = useState(true);
+  const [currentView, setCurrentView] = useState("finland");
   const [showHistory, setShowHistory] = useState(false);
-  const [priceTrend, setPricetrend] = useState("");
+  const [priceTrend, setPriceTrend] = useState('')
 
   useEffect(() => {
-    if (prices.length > 0) {
-      setPricetrend(electricityTrend(prices));
-    }
-  }, [prices]);
-
-  useEffect(() => {
-    const loadPrices = async () => {
-      const data = await fetchElectricityPrice();
-      if (data && data.prices) {
-        setPrices(data.prices.map((item) => item.value / 10));
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const [current, history] = await Promise.all([
+          fetchElectricityPrice(),
+          fetchElectricityPriceHistory(30),
+        ]);
+        setCurrentData(current);
+        setHistoryData(history);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
-    loadPrices();
+    loadData();
   }, []);
 
-  const electricityTrend = (prices, period = 15) => {
-    if (prices.length < period) return "Ei tarpeeksi dataa";
   
+  useEffect(() => {
+    const prices = currentView === "finland" ? currentData.FI : currentData.EE;
+    const trend = electricityTrend (prices, 15);
+    setPriceTrend(trend);
+  }, [currentData, currentView]);
+
+  const electricityTrend = (prices, period = 15) => {
     const recentPrices = prices.slice(-period);
     const average = recentPrices.reduce((total, price) => total + price, 0) / period;
-  
     const lastPrice = prices[prices.length - 1];
     return lastPrice > average ? "Nouseva" : "Laskeva";
   };
 
-  const toggleHistory = async () => {
-    setLoading(true);
-
-    if (showHistory) {
-      const data = await fetchElectricityPrice();
-      if (data && data.prices) {
-        setPrices(data.prices.map((item) => item.value / 10));
-        setShowHistory(false);
-      }
-    } else {
-      const data = await fetchElectricityPriceHistory(30);
-      if (data && data.prices) {
-        setPrices(data.prices.map((item) => item.value / 10));
-        setShowHistory(true);
-      }
-    }
-
-    setLoading(false);
+  const getDisplayData = () => {
+    const country = currentView === "finland" ? "FI" : "EE";
+    return showHistory ? historyData[country] : currentData[country];
   };
 
-  const getCurrentPrice = () =>
-    prices.length > 0 ? prices[new Date().getHours()].toFixed(2) : null;
-  const getMinPrice = () =>
-    prices.length > 0 ? Math.min(...prices).toFixed(2) : null;
-  const getMaxPrice = () =>
-    prices.length > 0 ? Math.max(...prices).toFixed(2) : null;
+  const getChartData = () => {
+    const data = getDisplayData();
 
-  if (loading) return <ActivityIndicator size="large" color="#0000ff" />;
+    if (showHistory) {
+      const dailyAverages = {};
+      data.forEach((item) => {
+        const date = item.date.split("T")[0];
+        if (!dailyAverages[date]) {
+          dailyAverages[date] = {
+            sum: 0,
+            count: 0,
+            date: new Date(date),
+          };
+        }
+        dailyAverages[date].sum += item.price;
+        dailyAverages[date].count++;
+      });
+
+      const sortedDates = Object.keys(dailyAverages)
+        .map((date) => dailyAverages[date])
+        .sort((a, b) => a.date - b.date);
+
+      const labels = [];
+      const values = [];
+      sortedDates.forEach((day, index) => {
+        values.push((day.sum / day.count).toFixed(2));
+        if (index % 5 === 0 || index === sortedDates.length - 1) {
+          labels.push(
+            day.date.toLocaleDateString("fi-FI", {
+              day: "numeric",
+              month: "numeric",
+            })
+          );
+        } else {
+          labels.push("");
+        }
+      });
+
+      return {
+        labels,
+        datasets: [
+          {
+            data: values,
+            strokeWidth: 2,
+          },
+        ],
+      };
+    } else {
+      const hours = Array.from({ length: 24 }, (_, i) => `${i}`);
+      return {
+        labels: hours,
+        datasets: [
+          {
+            data: data,
+            strokeWidth: 2,
+          },
+        ],
+      };
+    }
+  };
+
+  const getCurrentPrice = () => {
+    const currentHour = new Date().getHours();
+    const prices = currentView === "finland" ? currentData.FI : currentData.EE;
+    return prices[currentHour].toFixed(2);
+  };
+
+  const getMinPrice = () => {
+    const data = getDisplayData();
+    const prices = showHistory ? data.map((item) => item.price) : data;
+    return Math.min(...prices).toFixed(2);
+  };
+
+  const getMaxPrice = () => {
+    const data = getDisplayData();
+    const prices = showHistory ? data.map((item) => item.price) : data;
+    return Math.max(...prices).toFixed(2);
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text>Ladataan pörssisähkön hintatietoja...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Sähkön Hinnat</Text>
-
-      <View style={styles.priceCard}>
-        <Text style={styles.currentPrice}>Nyt: {getCurrentPrice()} c/kWh</Text>
+      <View style={styles.selector}>
+        <Button
+          title="Suomi"
+          onPress={() => setCurrentView("finland")}
+          color={currentView === "finland" ? "#007AFF" : "#CCCCCC"}
+        />
+        <Button
+          title="Viro"
+          onPress={() => setCurrentView("estonia")}
+          color={currentView === "estonia" ? "#007AFF" : "#CCCCCC"}
+        />
       </View>
 
-      <View style={styles.detailCard}>
-        <Text style={styles.detailText}>
-          {showHistory
-            ? `30 päivän alin: ${getMinPrice()} c/kWh`
-            : `Päivän alin: ${getMinPrice()} c/kWh`}
-        </Text>
-        <Text style={styles.detailText}>
-          {showHistory
-            ? `30 päivän ylin: ${getMaxPrice()} c/kWh`
-            : `Päivän ylin: ${getMaxPrice()} c/kWh`}
-        </Text>
-        <Text style={styles.detailText}>Hinta trendi: {priceTrend}</Text>
-      </View>
+      <Text>Nyt: {getCurrentPrice()} c/kWh</Text>
+      <Text>
+        {showHistory ? "30 päivän alin" : "Päivän alin"}: {getMinPrice()} c/kWh
+      </Text>
+      <Text>
+        {showHistory ? "30 päivän ylin" : "Päivän ylin"}: {getMaxPrice()} c/kWh
+      </Text>
+      <Text>Trendi: {priceTrend}
+      </Text>
 
       <LineChart
-        data={{
-          labels: showHistory
-            ? dateLabels(30)
-            : Array.from({ length: prices.length }, (_, i) => `${i}`),
-          datasets: [{ data: prices }],
-        }}
+        data={getChartData()}
         width={350}
         height={220}
         bezier
@@ -124,11 +177,10 @@ const MainScreen = () => {
         style={styles.chart}
       />
 
-      <TouchableOpacity style={styles.button} onPress={toggleHistory}>
-        <Text style={styles.buttonText}>
-          {showHistory ? "Näytä päivän hinnat" : "Näytä hintahistoria"}
-        </Text>
-      </TouchableOpacity>
+      <Button
+        title={showHistory ? "Näytä päivän hinnat" : "Näytä 30 päivän historia"}
+        onPress={() => setShowHistory(!showHistory)}
+      />
     </View>
   );
 };
@@ -136,61 +188,20 @@ const MainScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "#f4f4f8",
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginVertical: 20,
-    color: "#333",
-  },
-  priceCard: {
-    backgroundColor: "#007AFF",
-    borderRadius: 12,
-    padding: 15,
-    marginVertical: 10,
-  },
-  currentPrice: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#fff",
-    textAlign: "center",
-  },
-  detailCard: {
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 16,
     backgroundColor: "#fff",
-    padding: 15,
-    marginVertical: 10,
-    borderRadius: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
   },
-  detailText: {
-    fontSize: 16,
-    color: "#555",
-    marginBottom: 5,
-    textAlign: "center",
+  selector: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+    marginBottom: 16,
   },
   chart: {
-    marginVertical: 20,
+    marginVertical: 8,
     borderRadius: 16,
-    elevation: 5,
-  },
-  button: {
-    backgroundColor: "#28a745",
-    paddingVertical: 12,
-    borderRadius: 8,
-    marginTop: 20,
-    alignItems: "center",
-  },
-  buttonText: {
-    fontSize: 16,
-    color: "#fff",
-    fontWeight: "bold",
   },
 });
 
