@@ -23,34 +23,34 @@ export default function WeatherScreen() {
   ];
 
   const cityImages = {
-    helsinki: require('./img/default.jpg'),
-    turku: require('./img/default.jpg'),
-    tampere: require('./img/default.jpg'),
-    vaasa: require('./img/default.jpg'),
-    seinäjoki: require('./img/default.jpg'),
-    jyväskylä: require('./img/default.jpg'),
-    lappeenranta: require('./img/default.jpg'),
-    joensuu: require('./img/default.jpg'),
-    kuopio: require('./img/default.jpg'),
-    kajaani: require('./img/default.jpg'),
-    oulu: require('./img/default.jpg'),
-    tornio: require('./img/default.jpg'),
-    rovaniemi: require('./img/default.jpg'),
-    tallinn: require('./img/default.jpg'),
-    riga: require('./img/default.jpg'),
-    vilnius: require('./img/default.jpg'),
-    stockholm: require('./img/default.jpg'),
-    copenhagen: require('./img/default.jpg'),
-    oslo: require('./img/default.jpg'),
-    hamburg: require('./img/default.jpg'),
-    berlin: require('./img/default.jpg'),
-    cologne: require('./img/default.jpg'),
-    stuttgart: require('./img/default.jpg'),
-    warsaw: require('./img/default.jpg'),
-    vienna: require('./img/default.jpg'),
-    paris: require('./img/default.jpg'),
-    rotterdam: require('./img/default.jpg'),
-  };  
+    helsinki: 'https://upload.wikimedia.org/wikipedia/commons/3/37/Helsingin_ydinkeskustaa_ja_Mannerheimintien_alkup%C3%A4%C3%A4t%C3%A4_Erottajan_paloaseman_tornista_%28cropped%29.jpg',
+    turku: 'https://upload.wikimedia.org/wikipedia/commons/2/2a/View_from_Turku_Cathedral_tower.jpg',
+    tampere: '',
+    vaasa: '',
+    seinäjoki: '',
+    jyväskylä: '',
+    lappeenranta: '',
+    joensuu: '',
+    kuopio: '',
+    kajaani: '',
+    oulu: '',
+    tornio: '',
+    rovaniemi: '',
+    tallinn: '',
+    riga: '',
+    vilnius: '',
+    stockholm: '',
+    copenhagen: '',
+    oslo: '',
+    hamburg: '',
+    berlin: '',
+    cologne: '',
+    stuttgart: '',
+    warsaw: '',
+    vienna: '',
+    paris: '',
+    rotterdam: '',
+  };
 
   const cityTranslations = {
     Tallinn: 'Tallinna (Viro)',
@@ -213,6 +213,22 @@ export default function WeatherScreen() {
       setModalVisible(true);
     };
 
+    const CityImageComponent = ({ city }) => {
+      return (
+        <View style={styles.imageContainer}>
+          <Image
+            source={
+              cityImages[city?.toLowerCase()]
+                ? { uri: cityImages[city?.toLowerCase()] }
+                : require('./img/default.jpg')
+            }
+            style={styles.image}
+            resizeMode="contain"
+          />
+        </View>
+      );
+    };    
+
     return (
       <View style={styles.container}>
         {errorMsg ? (
@@ -246,7 +262,7 @@ export default function WeatherScreen() {
             <Text style={styles.infoText}>
               Sääolosuhteet voivat vaikuttaa pörssisähkön hintaan lämmityskustannusten ja uusiutuvan energian saatavuuden kautta.
             </Text>
-  
+
             {citiesWeather.length > 0 && (
               <ScrollView style={styles.scrollContainer}>
                 {citiesWeather.map((cityData) => (
@@ -261,10 +277,7 @@ export default function WeatherScreen() {
                       <Text style={styles.boxText}>{`${getWeatherTranslation(cityData.weather)}`}</Text>
                     </View>
                     <View style={styles.imageContainer}>
-                      <Image
-                        source={getCityImage(cityData.city)}
-                        style={styles.image}
-                      />
+                      <CityImageComponent city={cityData.city} />
                     </View>
                   </TouchableOpacity>
                 ))}
