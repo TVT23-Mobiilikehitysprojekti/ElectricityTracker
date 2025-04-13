@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import {View, Text, StyleSheet, Button } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { fetchElectricityPrice, fetchElectricityPriceHistory } from "../utils/fetchElectricityPrice";
+import LoadingComponent from '../components/LoadingEffect';
 
 const MainScreen = () => {
   const [currentData, setCurrentData] = useState({ EE: [], FI: [] });
@@ -128,9 +129,7 @@ const MainScreen = () => {
 
   if (loading) {
     return (
-      <View style={styles.container}>
-        <Text>Ladataan pörssisähkön hintatietoja...</Text>
-      </View>
+      <LoadingComponent loading={loading}/>
     );
   }
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import axios from "axios";
+import LoadingComponent from "../components/LoadingEffect";
 
 export default function AiScreen() {
   const [summary, setSummary] = useState("");
@@ -51,7 +52,11 @@ export default function AiScreen() {
       
       <ScrollView style={styles.outputContainer}>
         <View style={styles.summaryBox}>
-          <Text style={styles.output}>{loading ? "Loading..." : summary}</Text>
+          {loading ? (
+            <LoadingComponent loading={loading} /> 
+          ) : (
+            <Text style={styles.output}>{summary}</Text>
+          )}
         </View>
       </ScrollView>
     </View>
