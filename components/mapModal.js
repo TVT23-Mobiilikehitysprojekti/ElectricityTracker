@@ -22,14 +22,12 @@ const locations = [
     { name: 'Stockholm', latitude: 59.3293, longitude: 18.0686 },
     { name: 'Copenhagen', latitude: 55.6761, longitude: 12.5683 },
     { name: 'Oslo', latitude: 59.9139, longitude: 10.7522 },
+    { name: 'Bergen', latitude: 60.3930, longitude: 5.3242 },
+    { name: 'Trondheim', latitude: 63.4305, longitude: 10.3951 },
+    { name: 'Piteå', latitude: 65.3172, longitude: 21.4794 },
     { name: 'Hamburg', latitude: 53.5511, longitude: 9.9937 },
     { name: 'Berlin', latitude: 52.52, longitude: 13.405 },
-    { name: 'Cologne', latitude: 50.9375, longitude: 6.9603 },
-    { name: 'Stuttgart', latitude: 48.7758, longitude: 9.1829 },
-    { name: 'Warsaw', latitude: 52.2297, longitude: 21.0122 },
-    { name: 'Vienna', latitude: 48.2082, longitude: 16.3738 },
-    { name: 'Paris', latitude: 48.8566, longitude: 2.3522 },
-    { name: 'Rotterdam', latitude: 51.9225, longitude: 4.4792 },
+    { name: 'Warsaw', latitude: 52.2297, longitude: 21.0122 }
 ];
 
 const MapModal = ({ isVisible, onClose, cityName }) => {

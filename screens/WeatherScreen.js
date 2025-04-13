@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, Button, TouchableOpacity, Keyboard, ScrollView, Image } from 'react-native';
 import * as Location from 'expo-location';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import MapModal from '../components/mapModal';
 
 export default function WeatherScreen() {
@@ -18,39 +19,9 @@ export default function WeatherScreen() {
   const cities = [
     'Helsinki', 'Turku', 'Tampere', 'Vaasa', 'Seinäjoki', 'Jyväskylä', 'Lappeenranta',
     'Joensuu', 'Kuopio', 'Kajaani', 'Oulu', 'Tornio', 'Rovaniemi', 'Tallinn', 'Riga',
-    'Vilnius', 'Stockholm', 'Copenhagen', 'Oslo', 'Hamburg', 'Berlin', 'Cologne', 
-    'Stuttgart', 'Warsaw', 'Vienna', 'Paris', 'Rotterdam'
+    'Vilnius', 'Piteå', 'Trondheim', 'Bergen', 'Oslo', 'Stockholm', 'Copenhagen',
+    'Hamburg', 'Berlin', 'Warsaw'
   ];
-
-  const cityImages = {
-    helsinki: require('./img/default.jpg'),
-    turku: require('./img/default.jpg'),
-    tampere: require('./img/default.jpg'),
-    vaasa: require('./img/default.jpg'),
-    seinäjoki: require('./img/default.jpg'),
-    jyväskylä: require('./img/default.jpg'),
-    lappeenranta: require('./img/default.jpg'),
-    joensuu: require('./img/default.jpg'),
-    kuopio: require('./img/default.jpg'),
-    kajaani: require('./img/default.jpg'),
-    oulu: require('./img/default.jpg'),
-    tornio: require('./img/default.jpg'),
-    rovaniemi: require('./img/default.jpg'),
-    tallinn: require('./img/default.jpg'),
-    riga: require('./img/default.jpg'),
-    vilnius: require('./img/default.jpg'),
-    stockholm: require('./img/default.jpg'),
-    copenhagen: require('./img/default.jpg'),
-    oslo: require('./img/default.jpg'),
-    hamburg: require('./img/default.jpg'),
-    berlin: require('./img/default.jpg'),
-    cologne: require('./img/default.jpg'),
-    stuttgart: require('./img/default.jpg'),
-    warsaw: require('./img/default.jpg'),
-    vienna: require('./img/default.jpg'),
-    paris: require('./img/default.jpg'),
-    rotterdam: require('./img/default.jpg'),
-  };  
 
   const cityTranslations = {
     Tallinn: 'Tallinna (Viro)',
@@ -59,35 +30,40 @@ export default function WeatherScreen() {
     Stockholm: 'Tukholma (Ruotsi)',
     Copenhagen: 'Kööpenhamina (Tanska)',
     Oslo: 'Oslo (Norja)',
+    Bergen: 'Bergen (Norja)',
+    Trondheim: 'Trondheim (Norja)',
+    Piteå: 'Piteå (Ruotsi)',
     Hamburg: 'Hampuri (Saksa)',
     Berlin: 'Berliini (Saksa)',
-    Cologne: 'Köln (Saksa)',
-    Stuttgart: 'Stuttgart (Saksa)',
-    Warsaw: 'Varsova (Puola)',
-    Vienna: 'Wien (Itävalta)',
-    Paris: 'Pariisi (Ranska)',
-    Rotterdam: 'Rotterdam (Alankomaat)'
+    Warsaw: 'Varsova (Puola)'
   };
 
-  const weatherTranslations = {
-    "clear sky": "Selkeä taivas",
-    "few clouds": "Vähän pilviä",
-    "scattered clouds": "Hajanaisia pilviä",
-    "broken clouds": "Rikkinäisiä pilviä",
-    "overcast clouds": "Pilvistä",
-    "light rain": "Kevyt sade",
-    "moderate rain": "Kohtalainen sade",
-    "heavy intensity rain": "Voimakas sade",
-    "shower rain": "Sadekuuroja",
-    "freezing rain": "Jäätävää sadetta",
-    "light snow": "Kevyttä lumisadetta",
-    "heavy snow": "Voimakasta lumisadetta",
-    "sleet": "Räntäsadetta",
-    "thunderstorm with light rain": "Ukkosmyrsky ja kevyt sade",
-    "thunderstorm with heavy rain": "Ukkosmyrsky ja voimakas sade",
-    "thunderstorm with hail": "Ukkosmyrsky ja rakeita",
-    "mist": "Sumua",
-    "fog": "Sumua",
+  const cityImages = {
+    helsinki: 'https://upload.wikimedia.org/wikipedia/commons/3/37/Helsingin_ydinkeskustaa_ja_Mannerheimintien_alkup%C3%A4%C3%A4t%C3%A4_Erottajan_paloaseman_tornista_%28cropped%29.jpg',
+    turku: 'https://upload.wikimedia.org/wikipedia/commons/2/2a/View_from_Turku_Cathedral_tower.jpg',
+    tampere: 'https://upload.wikimedia.org/wikipedia/commons/3/39/Tampere_from_Pyynikki_tower_narrow.jpg',
+    vaasa: 'https://upload.wikimedia.org/wikipedia/commons/8/8e/Vaasa_kauppatori_2018.jpg',
+    seinäjoki: 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Sein%C3%A4joki_city_centre.jpg',
+    jyväskylä: 'https://upload.wikimedia.org/wikipedia/commons/9/99/Jyv%C3%A4skyl%C3%A4_juli_2019_15.jpg',
+    lappeenranta: 'https://upload.wikimedia.org/wikipedia/commons/9/93/Lappenranta_-_winter_-_panoramio.jpg',
+    joensuu: 'https://upload.wikimedia.org/wikipedia/commons/f/f7/Ilosaari%2C_Joensuu.jpg',
+    kuopio: 'https://upload.wikimedia.org/wikipedia/commons/4/47/Kuopio_Market_Square.jpg',
+    kajaani: 'https://upload.wikimedia.org/wikipedia/commons/0/09/Kajaani_Castle_Ruins_20210421_07.jpg',
+    oulu: 'https://upload.wikimedia.org/wikipedia/commons/a/ad/View_of_Oulu_20240904_02.jpg',
+    tornio: 'https://upload.wikimedia.org/wikipedia/commons/f/f7/View_from_Suensaari_water_tower_Tornio_20150806_02.JPG',
+    rovaniemi: 'https://upload.wikimedia.org/wikipedia/commons/4/44/Rovaniemi_-The_%E2%80%9DLumberjack%27s_Candle_Bridge.jpg?20120517091014',
+    tallinn: 'https://upload.wikimedia.org/wikipedia/commons/6/62/Old_Town_of_Tallinn%2C_Tallinn%2C_Estonia_-_panoramio_%2858_cropped%29.jpg',
+    riga: 'https://upload.wikimedia.org/wikipedia/commons/b/b2/RigaSkyline_%28cropped%29.jpg',
+    vilnius: 'https://upload.wikimedia.org/wikipedia/commons/6/61/Vilnius_%28Wilno%29_-_city_hall_square_%28Rotu%C5%A1%C4%97s_aik%C5%A1t%C4%97%29.JPG',
+    stockholm: 'https://upload.wikimedia.org/wikipedia/commons/7/7f/Skeppsbron_20-48%2C_2006.jpg',
+    copenhagen: 'https://upload.wikimedia.org/wikipedia/commons/3/3c/Nyhavn%2C_Copenhagen%2C_20220618_1726_7351.jpg',
+    oslo: 'https://upload.wikimedia.org/wikipedia/commons/2/25/Bj%C3%B8rvika_-_Oslo%2C_Norway_2020-12-23.jpg',
+    bergen: 'https://upload.wikimedia.org/wikipedia/commons/6/60/Bergen_city_centre_and_surroundings_Panorama_edited.jpg',
+    trondheim: 'https://upload.wikimedia.org/wikipedia/commons/6/68/Estaci%C3%B3n_central_de_FF.CC.%2C_Trondheim%2C_Noruega%2C_2019-09-06%2C_DD_152.jpg',
+    piteå: 'https://upload.wikimedia.org/wikipedia/commons/4/40/Centrala_Pitea_web.jpg',
+    hamburg: 'https://upload.wikimedia.org/wikipedia/commons/3/34/AlsterPanorama.jpg',
+    berlin: 'https://upload.wikimedia.org/wikipedia/commons/f/f7/Museumsinsel_Berlin_Juli_2021_1_%28cropped%29_b.jpg',
+    warsaw: 'https://upload.wikimedia.org/wikipedia/commons/3/35/Aleja_Niepdleglosci_Warsaw_2022_aerial_%28cropped%29.jpg'
   };
 
   const fetchWeather = async (cityName) => {
@@ -153,133 +129,163 @@ export default function WeatherScreen() {
   };
 
   const fetchCurrentLocationWeather = async () => {
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') {
+    try {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
         console.log('Permission to access location was denied');
         return;
-    }
-
-    try {
-        let currentLocation = await Location.getCurrentPositionAsync({});
-        setLocation(currentLocation);
-
-        if (currentLocation) {
-            const { latitude, longitude } = currentLocation.coords;
-            const url = `https://electricitytracker-backend.onrender.com/api/location?latitude=${latitude}&longitude=${longitude}`;
-            console.log(url);
-            
-            const response = await axios.get(url);
-            const cityName = response.data.city || 'Unknown city';
-            setCity(cityName);
-            fetchWeather(cityName);
-        }
+      }
+  
+      let currentLocation = await Location.getCurrentPositionAsync({});
+      setLocation(currentLocation);
+  
+      if (currentLocation) {
+        const { latitude, longitude } = currentLocation.coords;
+        const url = `https://electricitytracker-backend.onrender.com/api/location?latitude=${latitude}&longitude=${longitude}`;
+        console.log(url);
+  
+        const response = await axios.get(url);
+        const cityName = response.data.city || 'Unknown city';
+  
+        await AsyncStorage.setItem('userCity', cityName);
+        setCity(cityName);
+        fetchWeather(cityName);
+      }
     } catch (error) {
-        console.error('Error fetching location:', error);
+      console.error('Error fetching location or saving city:', error);
     }
   };
+  
+  
   
   const getCityName = (city) => {
     return cityTranslations[city] || city;
   };
 
-  const getWeatherTranslation = (weather) => {
-    const normalizedWeather = weather.toLowerCase();
-    return weatherTranslations[normalizedWeather] || weather;
-  };
-
-  const getCityImage = (cityName) => {
-    const cityKey = cityName.toLowerCase();
-    return cityImages[cityKey] || cityImages.default;
-  };
-
-  useEffect(() => {
-    fetchCurrentLocationWeather();
-    fetchWeatherForCities();
-  }, []);
-
-  const handleManualCity = () => {
+  const handleManualCity = async () => {
     if (manualCity.trim()) {
       setCity(manualCity);
       fetchWeather(manualCity);
       setShowInput(false);
       Keyboard.dismiss();
+  
+      try {
+        await AsyncStorage.setItem('userCity', manualCity.trim());
+      } catch (error) {
+        console.error('Error saving manual city:', error);
+      }
     } else {
-      setErrorMsg('Please enter a valid city name');
+      console.log('Please enter a valid city name');
     }
   };
+  
 
-    const handleCityClick = (cityData) => {
-      setSelectedCity(cityData.city);
-      setModalVisible(true);
-    };
+  const handleCityClick = (cityData) => {
+    setSelectedCity(cityData.city);
+    setModalVisible(true);
+  };
 
+  const checkAndFetchCity = async () => {
+    try {
+      const savedCity = await AsyncStorage.getItem('userCity');
+      if (savedCity) {
+        console.log('City found in storage:', savedCity);
+        setCity(savedCity);
+        fetchWeather(savedCity);
+      } else {
+        console.log('No city found in storage, fetching location...');
+        fetchCurrentLocationWeather();
+      }
+    } catch (error) {
+      console.error('Error checking or fetching city:', error);
+    }
+  };  
+
+  const CityImageComponent = ({ city }) => {
     return (
-      <View style={styles.container}>
-        {errorMsg ? (
-          <Text style={styles.error}>{errorMsg}</Text>
-        ) : (
-          <>
-            {weatherData && (
-              <View style={styles.userCityWeatherContainer}>
-                <Text style={styles.userCityText}>{`Sijaintisi: ${getCityName(weatherData.city)}`}</Text>
-                <Text style={styles.userCityText}>{`${weatherData.temperature}°C`},  {`${weatherData.windSpeed} m/s`}</Text>
-                <Text style={styles.userCityText}>{`${getWeatherTranslation(weatherData.weather)}`}</Text>
-              </View>
-            )}
-  
-            <Button title="Käytä laitteen sijaintia" onPress={fetchCurrentLocationWeather} />
-  
-            <TouchableOpacity style={styles.setLocationButton} onPress={() => setShowInput(!showInput)}>
-              <Text style={styles.setLocationButtonText}>Aseta sijainti</Text>
-            </TouchableOpacity>
-  
-            {showInput && (
-              <TextInput
-                style={styles.input}
-                placeholder="Kaupungin nimi"
-                value={manualCity}
-                onChangeText={(text) => setManualCity(text)}
-                onSubmitEditing={handleManualCity}
-              />
-            )}
-  
-            <Text style={styles.infoText}>
-              Sääolosuhteet voivat vaikuttaa pörssisähkön hintaan lämmityskustannusten ja uusiutuvan energian saatavuuden kautta.
-            </Text>
-  
-            {citiesWeather.length > 0 && (
-              <ScrollView style={styles.scrollContainer}>
-                {citiesWeather.map((cityData) => (
-                  <TouchableOpacity 
-                    key={cityData.city} 
-                    style={styles.weatherBox} 
-                    onPress={() => handleCityClick(cityData)}
-                  >
-                    <View style={styles.textContainer}>
-                      <Text style={styles.boxText}>{`${getCityName(cityData.city)}`}</Text>
-                      <Text style={styles.boxText}>{`${cityData.temperature}°C`}, {`${cityData.windSpeed} m/s`}</Text>
-                      <Text style={styles.boxText}>{`${getWeatherTranslation(cityData.weather)}`}</Text>
-                    </View>
-                    <View style={styles.imageContainer}>
-                      <Image
-                        source={getCityImage(cityData.city)}
-                        style={styles.image}
-                      />
-                    </View>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            )}
-  
-            <MapModal
-              isVisible={isModalVisible}
-              onClose={() => setModalVisible(false)}
-              cityName={selectedCity}
-            />
-          </>
-        )}
+      <View style={styles.imageContainer}>
+        <Image
+          source={
+            cityImages[city?.toLowerCase()]
+              ? { uri: cityImages[city?.toLowerCase()] }
+              : require('./img/default.jpg')
+          }
+          style={styles.image}
+          resizeMode="contain"
+        />
       </View>
     );
+  };    
+
+  useEffect(() => {
+    checkAndFetchCity();
+    fetchWeatherForCities();
+  }, []);  
+
+  return (
+    <View style={styles.container}>
+      {errorMsg ? (
+        <Text style={styles.error}>{errorMsg}</Text>
+      ) : (
+        <>
+          {weatherData && (
+            <View style={styles.userCityWeatherContainer}>
+              <Text style={styles.userCityText}>{`Sijaintisi: ${getCityName(weatherData.city)}`}</Text>
+              <Text style={styles.userCityText}>{`${weatherData.temperature}°C`},  {`${weatherData.windSpeed} m/s`}</Text>
+              <Text style={styles.userCityText}>{`${weatherData.weather}`}</Text>
+            </View>
+          )}
+
+          <Button title="Käytä laitteen sijaintia" onPress={fetchCurrentLocationWeather} />
+
+          <TouchableOpacity style={styles.setLocationButton} onPress={() => setShowInput(!showInput)}>
+            <Text style={styles.setLocationButtonText}>Aseta sijainti</Text>
+          </TouchableOpacity>
+
+          {showInput && (
+            <TextInput
+              style={styles.input}
+              placeholder="Kaupungin nimi"
+              value={manualCity}
+              onChangeText={(text) => setManualCity(text)}
+              onSubmitEditing={handleManualCity}
+            />
+          )}
+
+          <Text style={styles.infoText}>
+            Kylmä sää Suomessa tai ulkomailla voi lisätä sähkön kysyntää markkinoilla. Tuulennopeus voi vaikuttaa uusiutuvan energian saatavuuteen.
+          </Text>
+
+          {citiesWeather.length > 0 && (
+            <ScrollView style={styles.scrollContainer}>
+              {citiesWeather.map((cityData) => (
+                <TouchableOpacity 
+                  key={cityData.city} 
+                  style={styles.weatherBox} 
+                  onPress={() => handleCityClick(cityData)}
+                >
+                  <View style={styles.textContainer}>
+                    <Text style={styles.boxText}>{`${getCityName(cityData.city)}`}</Text>
+                    <Text style={styles.boxText}>{`${cityData.temperature}°C`}, {`${cityData.windSpeed} m/s`}</Text>
+                    <Text style={styles.boxText}>{`${cityData.weather}`}</Text>
+                  </View>
+                  <View style={styles.imageContainer}>
+                    <CityImageComponent city={cityData.city} />
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          )}
+
+          <MapModal
+            isVisible={isModalVisible}
+            onClose={() => setModalVisible(false)}
+            cityName={selectedCity}
+          />
+        </>
+      )}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
