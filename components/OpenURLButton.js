@@ -5,7 +5,7 @@ import axios from 'axios';
 
 const screenDimensions = Dimensions.get('screen')
 export default function OpenURLButton({url, userId, children}) {
-    const [votes, setVotes] = useState({ upvotes: 0, downvotes: 0 });
+    const [votes, setVotes] = useState([ 0, 0 ]);
     const [userVote, setUserVote] = useState(null);
 
     const handlePress = useCallback(async () => {
@@ -22,7 +22,7 @@ export default function OpenURLButton({url, userId, children}) {
 
     const fetchVotes = async () => {
       try {
-        const response = await axios.get('https://electricitytracker-backend.onrender.com/vote/votes', {params: { itemId: url}});
+        const response = await axios.get('https://electricitytracker-backend.onrender.com/vote/votes', {params: { newsId: url}});
         setVotes(response.data);
       } catch (error) {
         console.error(error);
@@ -31,7 +31,7 @@ export default function OpenURLButton({url, userId, children}) {
 
     const fetchUserVote = async () => {
       try {
-        const response = await axios.get('https://electricitytracker-backend.onrender.com/vote/user-votes', { params: { userId: userId, itemId: url } });
+        const response = await axios.get('https://electricitytracker-backend.onrender.com/vote/user-votes', { params: { userId: userId, newsId: url } });
         setUserVote(response.data.vote_type);
       } catch (error) {
         console.error(error);
@@ -43,12 +43,12 @@ export default function OpenURLButton({url, userId, children}) {
         if (voteType === 'upvote'){
         await axios.post('https://electricitytracker-backend.onrender.com/vote/upvote', {
           userId: userId,
-          itemId: url,
+          newsId: url,
         });
         } else if (voteType === 'downvote'){
-          await axios.post('https://electricitytracker-backend.onrender.com/vote/upvote', {
+          await axios.post('https://electricitytracker-backend.onrender.com/vote/downvote', {
             userId: userId,
-            itemId: url,
+            newsId: url,
           });
         }
         fetchVotes();
@@ -73,15 +73,14 @@ export default function OpenURLButton({url, userId, children}) {
       </View>
       <View style={styles.voteContainer}>
         <TouchableOpacity 
-          style={''} 
-          onPress={handleVote('upvote')}
-          disabled={userVote === 'upvote'}>
+        onPress={() => handleVote('upvote')}
+        disabled={userVote === 'upvote'}>
           <Image 
-            source={require('../assets/up-arrow.png')}
-            style={styles.image}></Image>
+           source={require('../assets/up-arrow.png')}
+           style={styles.image}></Image>
         </TouchableOpacity>
         <TouchableOpacity 
-          onPress={handleVote('downvote')}
+          onPress={() => handleVote('downvote')}
           disabled={userVote === 'downvote'}>
           <Image 
             source={require('../assets/down-arrow.png')}
