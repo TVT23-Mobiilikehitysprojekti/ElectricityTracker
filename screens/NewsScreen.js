@@ -5,6 +5,7 @@ import OpenURLButton from "../components/OpenURLButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import uuid from 'react-native-uuid';
 import RSSParser from 'react-native-rss-parser';
+import LoadingComponent from "../components/LoadingEffect";
 
 const USER_ID = '@user_key';
 const rssFeeds = [
@@ -83,20 +84,24 @@ export default function NewsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <FlatList
-        data={data}
-        renderItem={({ item }) => (
-          <OpenURLButton
-            styling={styles.urlbutton}
-            url={item.id}
-            userId={userId}
-          >
-            {item.title}
-            {item.published}
-          </OpenURLButton>
-        )}
-        keyExtractor={(item, index) => index.toString()}
-      />
+      {isLoading ? (
+        <LoadingComponent loading={isLoading} />
+      ) : (
+        <FlatList
+          data={data}
+          renderItem={({ item }) => (
+            <OpenURLButton
+              styling={styles.urlbutton}
+              url={item.id}
+              userId={userId}
+            >
+              {item.title}
+              {item.published}
+            </OpenURLButton>
+          )}
+          keyExtractor={(item, index) => index.toString()}
+        />
+      )}
     </SafeAreaView>
   );
 }
