@@ -2,7 +2,7 @@ import * as Notifications from 'expo-notifications';
 import * as TaskManager from 'expo-task-manager';
 import * as BackgroundFetch from 'expo-background-fetch';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { fetchElectricityPrice } from './fetchElectricityPrice';
+import { fetchElectricityPrice } from './fetchSpotPrice';
 
 const BACKGROUND_NOTIFICATION_TASK = "BACKGROUND_NOTIFICATION_TASK";
 
