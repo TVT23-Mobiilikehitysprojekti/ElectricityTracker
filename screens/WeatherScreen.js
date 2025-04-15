@@ -89,8 +89,6 @@ export default function WeatherScreen() {
         throw new Error('No valid data in the response');
       }
     } catch (error) {
-      console.error('Error fetching weather for city:', error.response?.data || error.message);
-  
       setWeatherData({
         city: "Unknown",
         temperature: "N/A",
@@ -124,7 +122,7 @@ export default function WeatherScreen() {
         throw new Error('No data in the response');
       }
     } catch (error) {
-      console.error('Error fetching weather for cities:', error.response?.data || error.message);
+      console.log('Error fetching weather for cities');
     }
   };
 
@@ -152,7 +150,7 @@ export default function WeatherScreen() {
         fetchWeather(cityName);
       }
     } catch (error) {
-      console.error('Error fetching location or saving city:', error);
+      console.log('Error fetching location or saving city');
     }
   };
   
