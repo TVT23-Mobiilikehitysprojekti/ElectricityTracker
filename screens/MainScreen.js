@@ -135,6 +135,7 @@ const MainScreen = () => {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.header}>Sähkön Hinnat</Text>
       <View style={styles.selector}>
         <Button
           title="Suomi"
@@ -147,16 +148,21 @@ const MainScreen = () => {
           color={currentView === "estonia" ? "#007AFF" : "#CCCCCC"}
         />
       </View>
-
-      <Text>Nyt: {getCurrentPrice()} c/kWh</Text>
-      <Text>
-        {showHistory ? "30 päivän alin" : "Päivän alin"}: {getMinPrice()} c/kWh
-      </Text>
-      <Text>
-        {showHistory ? "30 päivän ylin" : "Päivän ylin"}: {getMaxPrice()} c/kWh
-      </Text>
-      <Text>Trendi: {priceTrend}
-      </Text>
+      
+      <View style={styles.detailCard}>
+        <Text style={styles.currentPrice}>Nyt: {getCurrentPrice()} c/kWh</Text>
+         <Text style={styles.detailText}>
+           {showHistory
+             ? `30 päivän alin: ${getMinPrice()} c/kWh`
+             : `Päivän alin: ${getMinPrice()} c/kWh`}
+         </Text>
+         <Text style={styles.detailText}>
+           {showHistory
+             ? `30 päivän ylin: ${getMaxPrice()} c/kWh`
+             : `Päivän ylin: ${getMaxPrice()} c/kWh`}
+         </Text>
+         <Text style={styles.detailText}>Hinta trendi: {priceTrend}</Text>
+       </View>
 
       <LineChart
         data={getChartData()}
@@ -177,6 +183,7 @@ const MainScreen = () => {
       />
 
       <Button
+        style={styles.historyButton}
         title={showHistory ? "Näytä päivän hinnat" : "Näytä 30 päivän historia"}
         onPress={() => setShowHistory(!showHistory)}
       />
@@ -187,8 +194,6 @@ const MainScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
     padding: 16,
     backgroundColor: "#fff",
   },
@@ -202,6 +207,37 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     borderRadius: 16,
   },
+  header: {
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginVertical: 20,
+  },
+  currentPrice: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#Black",
+    textAlign: "center",
+    marginBottom:5,
+  },
+  detailCard: {
+    backgroundColor: "#fff",
+    padding: 15,
+    marginVertical: 10,
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  detailText: {
+    fontSize: 16,
+    color: "#555",
+    marginBottom: 5,
+    textAlign: "center",
+  },
+  
 });
 
 export default MainScreen;

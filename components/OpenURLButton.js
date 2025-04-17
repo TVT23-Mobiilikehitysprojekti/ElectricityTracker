@@ -98,30 +98,40 @@ const styles = StyleSheet.create({
     button: {       
         width: screenDimensions.width-32,  
         backgroundColor: '#f9c2ff',
-        padding: 40,
+        padding: 30,
         marginVertical: 15,
         marginHorizontal: 0,
         flexDirection: 'row',
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'space-between',
     },
     primary: {
         fontSize: 20,
         fontWeight: 'bold',
+        color: '#333',
     },
     secondary: {
+        fontSize: 15,
         fontStyle: 'italic',
         fontWeight: '300',
+        color: '#555',
     },
     image: {
-        width: 50,
-        height: 50,
-        resizeMode: 'cover',
+        width: 40,
+        height: 40,
+        resizeMode: 'contain',
     },
     voteContainer: {
         flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'space-between',
         gap: 10,
     },
     textContainer: {
         flexDirection: 'column',
+        flex: 1,
+        marginRight: 10,
     },
 
 })
