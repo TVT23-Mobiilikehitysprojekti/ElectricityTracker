@@ -88,10 +88,11 @@ export default function NewsScreen() {
         <LoadingComponent loading={isLoading} />
       ) : (
         <FlatList
+        contentContainerStyle={{ paddingHorizontal: 16, flexGrow: 1 }}
           data={data}
           renderItem={({ item }) => (
             <OpenURLButton
-              styling={styles.urlbutton}
+              style={styles.urlbutton}
               url={item.id}
               userId={userId}
             >
@@ -109,7 +110,7 @@ export default function NewsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: StatusBar.currentHeight || 0,
+    //marginTop: StatusBar.currentHeight || 0,
   },
   urlbutton: {
     fontSize: 54,
