@@ -69,8 +69,6 @@ export default function WeatherScreen() {
   };
 
   const fetchWeather = async (cityName) => {
-    console.log("The state is:");
-    console.log(serverResponse);
     if (!serverResponse) {
       console.log('Server is not ready.  Skipping request. (fetchWeather)');
       return;
@@ -232,21 +230,20 @@ export default function WeatherScreen() {
   useEffect(() => {
     const fetchData = () => {
       if (serverResponse) {
-        console.log('Server is ready. Fetching data...');
+        console.log('Server is ready. Fetching data... (WeatherScreen)');
         checkAndFetchCity();
         fetchWeatherForCities();
         if (interval) {
           clearInterval(interval);
-          console.log('Interval cleared. No further periodic requests needed.');
         }
       } else {
-        console.log('Server is not ready. Skipping requests.');
+        console.log('Server is not ready. Skipping requests. (WeatherScreen)');
       }
     };
     fetchData();
     const interval = setInterval(() => {
       if (!serverResponse) {
-        console.log('Server is not ready. Retrying fetch...');
+        console.log('Server is not ready. Retrying fetch... (WeatherScreen)');
         fetchData();
       }
     }, 30000);
