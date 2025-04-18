@@ -9,11 +9,10 @@ import NewsScreen from './screens/NewsScreen';
 import AiScreen from './screens/AiScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import ElectricityCalculatorScreen from './screens/ElectricityCalculatorScreen';
-import { useElectricityPriceWatcher } from './hooks/useElectricityPriceWatcher';
-import useRateLimitedTask from './hooks/useRateLimitedTask';
 import { registerForPushNotificationsAsync } from './utils/notifications';
 import { registerBackgroundTask } from './utils/taskManager'
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import axios from 'axios';
 
 const Stack = createStackNavigator();
 const Tab = createMaterialTopTabNavigator();
@@ -36,18 +35,42 @@ const SwipeableTabs = () => (
 );
 
 export default function App() {
-  const { executeTask } = useRateLimitedTask('summaryRequest')
+  const fetchSummaryWithRetry = async (url, retries = 10, delay = 5000) => {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        console.log(`Attempt ${attempt}: Requesting ${url}`);
+        const response = await axios.get(url);
+  
+        console.log("Summary requested successfully:", response.data);
+        return response.data;
+  
+      } catch (error) {
+        if (error.response && error.response.status === 429) {
+          console.error("Rate limit hit (HTTP 429). Stopping further requests.");
+          return null;
+        }
+  
+        console.error(`Attempt ${attempt} failed:`, error.message);
+  
+        if (attempt === retries) {
+          console.error("Max retries reached. Giving up.");
+          return null;
+        }
+
+        const nextDelay = delay * 2;
+        console.log(`Retrying in ${nextDelay / 1000} seconds...`);
+        await new Promise(resolve => setTimeout(resolve, nextDelay));
+      }
+    }
+  };  
 
   useEffect(() => {
     registerForPushNotificationsAsync();
     registerBackgroundTask();
-    (async () => {
-      console.log("Requesting /summarize route");
-      const data = await executeTask('https://electricitytracker-backend.onrender.com/huggingface/summarize');
-      console.log(data ? 'Summary requested successfully' : 'Requesting summary failed');
-    })();
-  }, [executeTask]);
 
+    fetchSummaryWithRetry("https://electricitytracker-backend.onrender.com/huggingface/summarize");
+
+  }, []);
 
   return (
     <NavigationContainer>
