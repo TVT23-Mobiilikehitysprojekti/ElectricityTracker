@@ -15,7 +15,6 @@ export default function AiScreen() {
 
   const fetchLatestSummary = async () => {
     if (!serverResponse) {
-      console.log("Server is not ready. Skipping request. (fetchLatestSummary)");
       return;
     }
 

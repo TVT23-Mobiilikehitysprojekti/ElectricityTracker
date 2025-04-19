@@ -70,7 +70,6 @@ export default function WeatherScreen() {
 
   const fetchWeather = async (cityName) => {
     if (!serverResponse) {
-      console.log('Server is not ready.  Skipping request. (fetchWeather)');
       return;
     }
 
@@ -107,7 +106,6 @@ export default function WeatherScreen() {
 
   const fetchWeatherForCities = async () => {
     if (!serverResponse) {
-      console.log('Server is not ready. Skipping request. (fetchWeatherForCities)');
       return;
     }
 

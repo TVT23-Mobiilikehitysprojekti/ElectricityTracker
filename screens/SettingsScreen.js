@@ -110,7 +110,7 @@ export default function SettingsScreen() {
 
       <View style={styles.settingItem2}>
         <Text style={styles.label}>
-          Yläraja: {userLimits.upperLimit.toFixed(2)} c/kWh
+          Yläraja: {userLimits.upperLimit.toFixed(2)} snt/kWh
         </Text>
         {isEditingUpperLimit ? (
           <>
