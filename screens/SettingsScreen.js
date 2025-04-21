@@ -83,7 +83,7 @@ export default function SettingsScreen() {
 
       <View style={styles.settingItem2}>
         <Text style={styles.label}>
-          Alaraja: {userLimits.lowerLimit.toFixed(2)} c/kWh
+          Alaraja: {userLimits.lowerLimit.toFixed(2)} snt/kWh
         </Text>
         {isEditingLowerLimit ? (
           <>

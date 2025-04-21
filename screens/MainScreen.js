@@ -150,16 +150,16 @@ const MainScreen = () => {
       </View>
       
       <View style={styles.detailCard}>
-        <Text style={styles.currentPrice}>Nyt: {getCurrentPrice()} c/kWh</Text>
+        <Text style={styles.currentPrice}>Nyt: {getCurrentPrice()} snt/kWh</Text>
          <Text style={styles.detailText}>
            {showHistory
-             ? `30 päivän alin: ${getMinPrice()} c/kWh`
-             : `Päivän alin: ${getMinPrice()} c/kWh`}
+             ? `30 päivän alin: ${getMinPrice()} snt/kWh`
+             : `Päivän alin: ${getMinPrice()} snt/kWh`}
          </Text>
          <Text style={styles.detailText}>
            {showHistory
-             ? `30 päivän ylin: ${getMaxPrice()} c/kWh`
-             : `Päivän ylin: ${getMaxPrice()} c/kWh`}
+             ? `30 päivän ylin: ${getMaxPrice()} snt/kWh`
+             : `Päivän ylin: ${getMaxPrice()} snt/kWh`}
          </Text>
          <Text style={styles.detailText}>Hinta trendi: {priceTrend}</Text>
        </View>
