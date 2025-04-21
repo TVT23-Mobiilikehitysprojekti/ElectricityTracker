@@ -51,7 +51,7 @@ export default function App() {
         return response.data;
       } catch (error) {
         if (error.response && error.response.status === 429) {
-          console.error('Rate limit hit (HTTP 429). Stopping further requests.');
+          console.log('Rate limit hit (HTTP 429). Stopping further requests.');
           setServerResponse(true);
           return null;
         }
