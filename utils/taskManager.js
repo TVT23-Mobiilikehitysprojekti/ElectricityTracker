@@ -10,15 +10,9 @@ TaskManager.defineTask(BACKGROUND_NOTIFICATION_TASK, async () => {
   console.log("Background task executed.");
 
   let notificationsEnabled = false;
-
   try {
     const storedValue = await AsyncStorage.getItem('notificationsEnabled');
-    if (storedValue !== null) {
-      notificationsEnabled = JSON.parse(storedValue);
-    } else {
-      console.warn("Failed to retrieve notifications state, proceeding with notifications.");
-      notificationsEnabled = true;
-    }
+    notificationsEnabled = storedValue !== null ? JSON.parse(storedValue) : true;
   } catch (error) {
     console.error("Error fetching notifications state:", error);
     notificationsEnabled = true;
@@ -32,18 +26,18 @@ TaskManager.defineTask(BACKGROUND_NOTIFICATION_TASK, async () => {
   try {
     const currentPrice = await fetchElectricityPrice();
     if (currentPrice === null || isNaN(currentPrice)) {
-      console.error("Invalid or missing current price from fetchElectricityPrice.");
+      console.error("Invalid or missing current price.");
       return BackgroundFetch.Result.Failed;
     }
 
-    console.log("Fetched current electricity price (adjusted):", currentPrice);
+    console.log("Fetched electricity price:", currentPrice);
 
     if (notificationsEnabled) {
       if (currentPrice > upperLimit && !upperLimitNotificationSent) {
         await Notifications.scheduleNotificationAsync({
           content: {
             title: "Sähkö on nyt kallista.",
-            body: `Viimeisin hinta: ${currentPrice.toFixed(2)} c/kWh. Asettamasi yläraja: ${upperLimit.toFixed(2)} c/kWh.`,
+            body: `Viimeisin hinta: ${currentPrice.toFixed(2)} snt/kWh. Yläraja: ${upperLimit.toFixed(2)} snt/kWh.`,
           },
           trigger: null,
         });
@@ -57,7 +51,7 @@ TaskManager.defineTask(BACKGROUND_NOTIFICATION_TASK, async () => {
         await Notifications.scheduleNotificationAsync({
           content: {
             title: "Sähkö on nyt edullista.",
-            body: `Viimeisin hinta: ${currentPrice.toFixed(2)} c/kWh. Asettamasi alaraja: ${lowerLimit.toFixed(2)} c/kWh.`,
+            body: `Viimeisin hinta: ${currentPrice.toFixed(2)} snt/kWh. Alaraja: ${lowerLimit.toFixed(2)} snt/kWh.`,
           },
           trigger: null,
         });
@@ -67,23 +61,25 @@ TaskManager.defineTask(BACKGROUND_NOTIFICATION_TASK, async () => {
         await AsyncStorage.setItem('lowerLimitNotificationSent', JSON.stringify(false));
       }
     } else {
-      console.log("Notifications disabled. Skipping sending alerts.");
+      console.log("Notifications disabled. Skipping alerts.");
     }
 
-    return BackgroundFetch.Result.NewData;
+    console.log("Returning BackgroundFetch.Result.NewData:", BackgroundFetch.Result.NewData);
+    return BackgroundFetch.Result.NewData || "NewData";
   } catch (error) {
-    console.error("Error fetching electricity prices or processing notifications:", error.message);
-    return BackgroundFetch.Result.Failed;
+    console.error("Error in background task:", error.message);
+    return BackgroundFetch.Result.Failed || "Failed";
   }
 });
 
 export async function registerBackgroundTask() {
   const isTaskRegistered = await TaskManager.isTaskRegisteredAsync(BACKGROUND_NOTIFICATION_TASK);
+  console.log("Is background task registered?", isTaskRegistered);
 
   if (!isTaskRegistered) {
     try {
       await BackgroundFetch.registerTaskAsync(BACKGROUND_NOTIFICATION_TASK, {
-        minimumInterval: 30,
+        minimumInterval: 15,
         stopOnTerminate: false,
         startOnBoot: true,
       });

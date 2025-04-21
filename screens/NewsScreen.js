@@ -9,9 +9,7 @@ import LoadingComponent from "../components/LoadingEffect";
 
 const USER_ID = '@user_key';
 const rssFeeds = [
-    "https://feeds.yle.fi/uutiset/v1/majorHeadlines/YLE_UUTISET.rss",
-    "https://feeds.yle.fi/uutiset/v1/recent.rss?publisherIds=YLE_UUTISET",
-    "https://feeds.yle.fi/uutiset/v1/mostRead/YLE_UUTISET.rss"
+    "https://feeds.yle.fi/uutiset/v1/recent.rss?publisherIds=YLE_UUTISET"
 ];
 
 export default function NewsScreen() {
