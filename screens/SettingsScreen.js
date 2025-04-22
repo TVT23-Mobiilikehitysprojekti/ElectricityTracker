@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, Button, ActivityIndicator,Switch, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useElectricityPriceWatcher } from '../hooks/useElectricityPriceWatcher';
-// import { triggerNotification } from '../utils/notifications';
 
 export default function SettingsScreen() {
   const { userLimits, saveLimits, isLoading } = useElectricityPriceWatcher();
@@ -59,8 +58,6 @@ export default function SettingsScreen() {
       </View>
     );
   }
-
-  // <Button title="Test Notification" onPress={() => { triggerNotification(notificationsEnabled); }} />
 
   return (
     <View style={styles.container}>

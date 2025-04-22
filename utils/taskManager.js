@@ -9,6 +9,14 @@ const BACKGROUND_NOTIFICATION_TASK = "BACKGROUND_NOTIFICATION_TASK";
 TaskManager.defineTask(BACKGROUND_NOTIFICATION_TASK, async () => {
   console.log("Background task executed.");
 
+  const now = new Date();
+  const hours = now.getHours();
+
+  if (hours >= 22 || hours < 6) {
+    console.error("Background task execution is disabled between 22:00 and 06:00.");
+    return BackgroundFetch.Result.Failed;
+  }
+
   let notificationsEnabled = false;
   try {
     const storedValue = await AsyncStorage.getItem('notificationsEnabled');

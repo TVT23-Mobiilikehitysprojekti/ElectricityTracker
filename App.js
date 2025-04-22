@@ -1,6 +1,5 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect, createContext } from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import MainScreen from './screens/MainScreen';
@@ -9,7 +8,7 @@ import NewsScreen from './screens/NewsScreen';
 import AiScreen from './screens/AiScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import ElectricityCalculatorScreen from './screens/ElectricityCalculatorScreen';
-import { registerForPushNotificationsAsync } from './utils/notifications';
+import { registerForNotificationsAsync } from './utils/notifications';
 import { registerBackgroundTask } from './utils/taskManager';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import axios from 'axios';
@@ -72,9 +71,8 @@ export default function App() {
   };
 
   useEffect(() => {
-    registerForPushNotificationsAsync();
+    registerForNotificationsAsync();
     registerBackgroundTask();
-
     fetchSummaryWithRetry('https://electricitytracker-backend.onrender.com/huggingface/summarize');
   }, []);
 
