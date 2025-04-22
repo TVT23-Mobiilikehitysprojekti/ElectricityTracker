@@ -9,9 +9,7 @@ import LoadingComponent from "../components/LoadingEffect";
 
 const USER_ID = '@user_key';
 const rssFeeds = [
-    "https://feeds.yle.fi/uutiset/v1/majorHeadlines/YLE_UUTISET.rss",
-    "https://feeds.yle.fi/uutiset/v1/recent.rss?publisherIds=YLE_UUTISET",
-    "https://feeds.yle.fi/uutiset/v1/mostRead/YLE_UUTISET.rss"
+    "https://feeds.yle.fi/uutiset/v1/recent.rss?publisherIds=YLE_UUTISET"
 ];
 const FILTER_CATEGORIES = [
   'Sää',
@@ -134,10 +132,11 @@ export default function NewsScreen() {
         <LoadingComponent loading={isLoading} />
       ) : (
         <FlatList
+        contentContainerStyle={{ paddingHorizontal: 16, flexGrow: 1 }}
           data={data}
           renderItem={({ item }) => (
             <OpenURLButton
-              styling={styles.urlbutton}
+              style={styles.urlbutton}
               url={item.id}
               userId={userId}
             >
@@ -155,7 +154,7 @@ export default function NewsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: StatusBar.currentHeight || 0,
+    //marginTop: StatusBar.currentHeight || 0,
   },
   urlbutton: {
     fontSize: 54,

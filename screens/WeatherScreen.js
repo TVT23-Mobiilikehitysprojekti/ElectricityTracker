@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, TextInput, Button, TouchableOpacity, Keyboard, ScrollView, Image } from 'react-native';
 import * as Location from 'expo-location';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MapModal from '../components/mapModal';
+import { AppContext } from '../App';
 
 export default function WeatherScreen() {
+  const { serverResponse } = useContext(AppContext);
   const [location, setLocation] = useState(null);
   const [city, setCity] = useState('');
   const [weatherData, setWeatherData] = useState(null);
@@ -67,6 +69,10 @@ export default function WeatherScreen() {
   };
 
   const fetchWeather = async (cityName) => {
+    if (!serverResponse) {
+      return;
+    }
+
     try {
       const url = `https://electricitytracker-backend.onrender.com/api/weather?city=${encodeURIComponent(cityName)}`;
       console.log(url);
@@ -99,6 +105,10 @@ export default function WeatherScreen() {
   };  
 
   const fetchWeatherForCities = async () => {
+    if (!serverResponse) {
+      return;
+    }
+
     try {
       const citiesQuery = encodeURIComponent(cities.join(','));
       const url = `https://electricitytracker-backend.onrender.com/api/weather?cities=${citiesQuery}`;
@@ -216,9 +226,29 @@ export default function WeatherScreen() {
   };    
 
   useEffect(() => {
-    checkAndFetchCity();
-    fetchWeatherForCities();
-  }, []);  
+    const fetchData = () => {
+      if (serverResponse) {
+        console.log('Server is ready. Fetching data... (WeatherScreen)');
+        checkAndFetchCity();
+        fetchWeatherForCities();
+        if (interval) {
+          clearInterval(interval);
+        }
+      } else {
+        console.log('Server is not ready. Skipping requests. (WeatherScreen)');
+      }
+    };
+    fetchData();
+    const interval = setInterval(() => {
+      if (!serverResponse) {
+        console.log('Server is not ready. Retrying fetch... (WeatherScreen)');
+        fetchData();
+      }
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [serverResponse]);
+  
+  
 
   return (
     <View style={styles.container}>
