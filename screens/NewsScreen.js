@@ -13,6 +13,52 @@ const rssFeeds = [
     "https://feeds.yle.fi/uutiset/v1/recent.rss?publisherIds=YLE_UUTISET",
     "https://feeds.yle.fi/uutiset/v1/mostRead/YLE_UUTISET.rss"
 ];
+const FILTER_CATEGORIES = [
+  'Sää',
+  'Sääennusteet',
+  'Sähkösopimus',
+  'Sähkökatkot',
+  'Sähkölämmitys',
+  'Sähkölasku',
+  'Sähkön hinta',
+  'Sähkömarkkinat',
+  'Energia',
+  'Sähköntuotanto ja -jakelu',
+  'Energia-ala',
+  'Olkiluodon ydinvoimalaitos',
+  'Loviisan ydinvoimalaitos',
+  'Lämpöhuolto',
+  'Kaukolämpö',
+  'Polttoaineet',
+  'Biopolttoaineet',
+  'Maakaasu',
+  'Kivihiili',
+  'Uusiutuvat energialähteet',
+  'Tuulienergia',
+  'Vesivoima',
+  'Aurinkoenergia',
+  'Aurinkovoimalat',
+  'Aurinkopaneelit',
+  'Maalämpö',
+  'Bioenergia',
+  'Fingrid',
+  'Fortum',
+  'Oomi',
+  'Vattenfall',
+  'Helen (energiayhtiö)',
+  'Vantaan Energia',
+  'Turku Energia',
+  'Tampereen Energia',
+  'Vaasan Sähkö',
+  'Kokkolan Energia',
+  'Oulun Energia',
+  'Väre',
+  'Lumme Energia',
+  'Kss energia',
+  'Pohjois-Karjalan Sähkö',
+  'Haminan Energia',
+  'Kymenlaakson Sähkö'
+];
 
 export default function NewsScreen() {
   const [isLoading, setLoading] = useState(true);
@@ -29,7 +75,7 @@ export default function NewsScreen() {
         const rss = await RSSParser.parse(text);
         allItems = [...allItems, ...rss.items];
       }
-      const filteredItems = filterByCategory(allItems, ["Energia", "Sähkön hinta", "politiikka"]);
+      const filteredItems = filterByCategory(allItems, FILTER_CATEGORIES);
       setData(filteredItems);
     } catch (error) {
       console.error("Error fetching news:", error);
